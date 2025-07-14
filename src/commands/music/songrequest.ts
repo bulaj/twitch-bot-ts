@@ -7,19 +7,19 @@ export const SongRequestCommand: Command = {
   async execute(client, channel, userstate, message, args) {
     const url = args[0];
     if (!url || userstate.username === undefined) {
-      client.say(channel, `Użycie: !sr <link do YouTube>`);
+      await client.say(channel, `Użycie: !sr <link do YouTube>`);
       return;
     }
 
     const song = await musicService.addSong(url, userstate.username);
 
     if (song) {
-      client.say(
+      await client.say(
         channel,
         `@${userstate.username}, dodano do kolejki: "${song.title}".`,
       );
     } else {
-      client.say(
+      await client.say(
         channel,
         `@${userstate.username}, nieprawidłowy link do YouTube lub wystąpił błąd.`,
       );

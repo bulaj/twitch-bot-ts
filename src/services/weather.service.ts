@@ -1,6 +1,4 @@
 import { fetchWeatherApi } from "openmeteo";
-import axios from "axios";
-import { config } from "../config";
 
 export async function getWeather(city: string): Promise<string> {
   const url = "https://api.open-meteo.com/v1/forecast";
@@ -12,10 +10,8 @@ export async function getWeather(city: string): Promise<string> {
   };
   const responses = await fetchWeatherApi(url, params);
   try {
-    // Process first location. Add a for-loop for multiple locations or weather models
     const response = responses[0];
 
-    // Attributes for timezone and location
     const utcOffsetSeconds = response.utcOffsetSeconds();
     const timezone = response.timezone();
     const timezoneAbbreviation = response.timezoneAbbreviation();
@@ -24,7 +20,6 @@ export async function getWeather(city: string): Promise<string> {
 
     const hourly = response.hourly()!;
 
-    // Note: The order of weather variables in the URL query and the indices below need to match!
     const weatherData = {
       hourly: {
         time: [
@@ -45,7 +40,6 @@ export async function getWeather(city: string): Promise<string> {
       },
     };
 
-    // `weatherData` now contains a simple structure with arrays for datetime and weather data
     for (let i = 0; i < weatherData.hourly.time.length; i++) {
       console.log(
         weatherData.hourly.time[i].toISOString(),

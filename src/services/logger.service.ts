@@ -1,4 +1,3 @@
-// Prosty logger dla lepszego śledzenia co się dzieje
 export const logger = {
   info: (message: string, ...args: any[]) =>
     console.log(`[INFO] ${message}`, ...args),
