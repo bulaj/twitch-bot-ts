@@ -1,23 +1,60 @@
+import { fetchWeatherApi } from "openmeteo";
 import axios from "axios";
 import { config } from "../config";
 
-const API_URL = "http://api.openweathermap.org/data/2.5/weather";
-
 export async function getWeather(city: string): Promise<string> {
-  if (!config.weather.apiKey) {
-    return "Klucz API do prognozy pogody nie został skonfigurowany.";
-  }
+  const url = "https://api.open-meteo.com/v1/forecast";
+
+  const params = {
+    latitude: 54.05,
+    longitude: 18.41,
+    hourly: "temperature_2m",
+  };
+  const responses = await fetchWeatherApi(url, params);
   try {
-    const response = await axios.get(API_URL, {
-      params: {
-        q: city,
-        appid: config.weather.apiKey,
-        units: "metric",
-        lang: "pl",
+    // Process first location. Add a for-loop for multiple locations or weather models
+    const response = responses[0];
+
+    // Attributes for timezone and location
+    const utcOffsetSeconds = response.utcOffsetSeconds();
+    const timezone = response.timezone();
+    const timezoneAbbreviation = response.timezoneAbbreviation();
+    const latitude = response.latitude();
+    const longitude = response.longitude();
+
+    const hourly = response.hourly()!;
+
+    // Note: The order of weather variables in the URL query and the indices below need to match!
+    const weatherData = {
+      hourly: {
+        time: [
+          ...Array(
+            (Number(hourly.timeEnd()) - Number(hourly.time())) /
+              hourly.interval(),
+          ),
+        ].map(
+          (_, i) =>
+            new Date(
+              (Number(hourly.time()) +
+                i * hourly.interval() +
+                utcOffsetSeconds) *
+                1000,
+            ),
+        ),
+        temperature2m: hourly.variables(0)!.valuesArray()!,
       },
-    });
-    const data = response.data;
-    return `Pogoda w ${data.name}: ${data.weather[0].description}, temperatura ${data.main.temp.toFixed(1)}°C, odczuwalna ${data.main.feels_like.toFixed(1)}°C.`;
+    };
+
+    // `weatherData` now contains a simple structure with arrays for datetime and weather data
+    for (let i = 0; i < weatherData.hourly.time.length; i++) {
+      console.log(
+        weatherData.hourly.time[i].toISOString(),
+        weatherData.hourly.temperature2m[i],
+      );
+    }
+
+    console.log(weatherData);
+    return `Pogoda sprawdzona:`;
   } catch (error) {
     return `Nie udało się znaleźć miasta "${city}". Spróbuj ponownie.`;
   }

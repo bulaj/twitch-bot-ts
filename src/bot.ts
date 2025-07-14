@@ -23,8 +23,8 @@ if (config.nodeEnv === "local") {
     server: config.localChat.host,
     port: config.localChat.port,
     reconnect: true,
+    secure: false,
   };
-  // W trybie lokalnym kanał jest symulowany
   options.channels = ["#localdev"];
 }
 
@@ -40,6 +40,6 @@ client.on("message", (channel, userstate, message, self) => {
 });
 
 client.connect().catch((err) => {
-  console.log(options);
+  console.log(err);
   logger.error("Failed to connect:", err);
 });

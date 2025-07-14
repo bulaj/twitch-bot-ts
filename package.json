@@ -7,7 +7,6 @@
     "start": "node dist/bot.js",
     "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/bot.ts",
-    "dev:chat": "ts-node-dev --respawn --transpile-only src/web-dev-chat/server.ts",
     "test": "jest"
   },
   "keywords": [
@@ -15,24 +14,21 @@
     "bot",
     "typescript"
   ],
-  "author": "",
+  "author": "bulajj",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.10.0",
     "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "socket.io": "^4.8.1",
+    "openmeteo": "^1.2.0",
     "tmi.js": "^1.8.5",
     "typescript": "^5.8.3",
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.13",
-    "@types/socket.io": "^3.0.1",
     "@types/tmi.js": "^1.8.6",
     "jest": "^29.7.0",
     "ts-jest": "^29.4.0",
