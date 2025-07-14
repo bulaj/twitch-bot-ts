@@ -2,7 +2,7 @@ import tmi from "tmi.js";
 import { Command } from "./command.interface";
 import { PingCommand } from "./misc/ping";
 import { WeatherCommand } from "./weather/weather";
-import { RepCommand } from "./reputation/rep";
+import { RepCommand } from "./reputation/reputation";
 import { SongRequestCommand } from "./music/songrequest";
 import { logger } from "../services/logger.service";
 
