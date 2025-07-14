@@ -11,7 +11,7 @@ export const RepCommand: Command = {
       ? args[0].substring(1)
       : args[0];
 
-    if (!targetUser) {
+    if (!targetUser || userstate.username === undefined) {
       client.say(
         channel,
         `@${userstate.username}, musisz podać nick użytkownika!`,

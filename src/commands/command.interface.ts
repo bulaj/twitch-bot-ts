@@ -6,7 +6,7 @@ export interface Command {
   execute(
     client: tmi.Client,
     channel: string,
-    userstate: tmi.Userstate,
+    userstate: tmi.ChatUserstate,
     message: string,
     args: string[],
   ): void;
