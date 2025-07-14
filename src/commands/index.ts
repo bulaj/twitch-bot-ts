@@ -16,7 +16,7 @@ const commands: Command[] = [
 export function handleCommand(
   client: tmi.Client,
   channel: string,
-  userstate: tmi.Userstate,
+  userstate: tmi.ChatUserstate,
   message: string,
 ) {
   if (!message.startsWith("!")) return;
