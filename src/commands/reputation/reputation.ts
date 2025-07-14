@@ -1,5 +1,5 @@
 import { Command } from "../command.interface";
-import { ReputationManager } from "../../database/reputation.manager";
+import { changeReputation, getUser } from "../../database/reputation.manager";
 
 export const RepCommand: Command = {
   name: "rep",
@@ -29,21 +29,21 @@ export const RepCommand: Command = {
 
     switch (action) {
       case "rep+":
-        const newRepPlus = ReputationManager.changeReputation(targetUser, 1);
+        const newRepPlus = changeReputation(targetUser, 1);
         client.say(
           channel,
           `Dodałeś punkt reputacji dla ${targetUser}! Ma teraz ${newRepPlus} pkt.`,
         );
         break;
       case "rep-":
-        const newRepMinus = ReputationManager.changeReputation(targetUser, -1);
+        const newRepMinus = changeReputation(targetUser, -1);
         client.say(
           channel,
           `Odjąłeś punkt reputacji dla ${targetUser}! Ma teraz ${newRepMinus} pkt.`,
         );
         break;
       case "rep":
-        const user = ReputationManager.getUser(targetUser);
+        const user = getUser(targetUser);
         const rep = user ? user.reputation : 0;
         client.say(
           channel,
