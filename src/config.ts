@@ -11,8 +11,4 @@ export const config = {
   weather: {
     apiKey: process.env.WEATHER_API_KEY,
   },
-  localChat: {
-    host: "localhost",
-    port: 6667,
-  },
 };

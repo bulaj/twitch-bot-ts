@@ -11,22 +11,11 @@ const options: tmi.Options = {
     username: config.twitch.username,
     password: config.twitch.oauthToken,
   },
-  channels: config.twitch.channels,
   connection: {
     reconnect: true,
     secure: true,
   },
 };
-
-if (config.nodeEnv === "local") {
-  options.connection = {
-    server: config.localChat.host,
-    port: config.localChat.port,
-    reconnect: true,
-    secure: false,
-  };
-  options.channels = ["#localdev"];
-}
 
 const client = new tmi.Client(options);
 
@@ -40,6 +29,5 @@ client.on("message", (channel, userstate, message, self) => {
 });
 
 client.connect().catch((err) => {
-  console.log(err);
   logger.error("Failed to connect:", err);
 });
