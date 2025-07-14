@@ -7,10 +7,16 @@ interface Song {
   requestedBy: string;
 }
 
-class MusicService {
-  private queue: Song[] = [];
+interface MusicServiceType {
+  addSong: (url: string, requestedBy: string) => Promise<Song | null>;
+  getQueue: () => Song[];
+  nextSong: () => Song | undefined;
+}
 
-  async addSong(url: string, requestedBy: string): Promise<Song | null> {
+export const createMusicService = (): MusicServiceType => {
+  const queue: Song[] = [];
+
+  const addSong = async (url: string, requestedBy: string): Promise<Song | null> => {
     try {
       if (!ytdl.validateURL(url)) {
         return null;
@@ -21,22 +27,28 @@ class MusicService {
         url,
         requestedBy,
       };
-      this.queue.push(song);
+      queue.push(song);
       logger.info(`Added to queue: ${song.title}`);
       return song;
     } catch (error) {
       logger.error("Error adding song:", error);
       return null;
     }
-  }
+  };
 
-  getQueue(): Song[] {
-    return this.queue;
-  }
+  const getQueue = (): Song[] => {
+    return [...queue];
+  };
 
-  nextSong(): Song | undefined {
-    return this.queue.shift();
-  }
-}
+  const nextSong = (): Song | undefined => {
+    return queue.shift();
+  };
 
-export const musicService = new MusicService();
+  return {
+    addSong,
+    getQueue,
+    nextSong,
+  };
+};
+
+export const musicService = createMusicService();

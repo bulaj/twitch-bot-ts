@@ -3,7 +3,7 @@ import { logger } from "../services/logger.service";
 
 let db: Database.Database;
 
-export function initDb() {
+export const initDb = () => {
   db = new Database("db/database.db");
   db.pragma("journal_mode = WAL");
   const createTable = `
@@ -14,11 +14,11 @@ export function initDb() {
     `;
   db.exec(createTable);
   logger.info("Database initialized and table created.");
-}
+};
 
-export function getDb() {
+export const getDb = (): Database.Database => {
   if (!db) {
     throw new Error("Database not initialized!");
   }
   return db;
-}
+};

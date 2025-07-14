@@ -13,12 +13,12 @@ const commands: Command[] = [
   SongRequestCommand,
 ];
 
-export function handleCommand(
+export const handleCommand = (
   client: tmi.Client,
   channel: string,
   userstate: tmi.ChatUserstate,
   message: string,
-) {
+): void => {
   if (!message.startsWith("!")) return;
 
   const [commandName, ...args] = message.slice(1).split(/\s+/);

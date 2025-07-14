@@ -15,19 +15,29 @@ const options: tmi.Options = {
     reconnect: true,
     secure: true,
   },
+  channels: config.twitch.channels,
 };
 
 const client = new tmi.Client(options);
 
-client.on("connected", (address, port) => {
+const onConnect = (address: string, port: number) => {
   logger.info(`Bot connected to ${address}:${port}`);
-});
+};
 
-client.on("message", (channel, userstate, message, self) => {
+const onMessage = (
+  channel: string,
+  userstate: tmi.ChatUserstate,
+  message: string,
+  self: boolean,
+) => {
   if (self) return;
   handleCommand(client, channel, userstate, message);
-});
+};
 
-client.connect().catch((err) => {
+const onError = (err: Error) => {
   logger.error("Failed to connect:", err);
-});
+};
+
+client.on("connected", onConnect);
+client.on("message", onMessage);
+client.connect().catch(onError);

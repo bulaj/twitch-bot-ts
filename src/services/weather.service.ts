@@ -1,6 +1,6 @@
 import { fetchWeatherApi } from "openmeteo";
 
-export async function getWeather(city: string): Promise<string> {
+export const getWeather = async (city: string): Promise<string> => {
   const url = "https://api.open-meteo.com/v1/forecast";
 
   const params = {
