@@ -6,7 +6,7 @@ export const SongRequestCommand: Command = {
   description: "Dodaje piosenkę z YouTube do kolejki. Użycie: !sr <link>",
   async execute(client, channel, userstate, message, args) {
     const url = args[0];
-    if (!url) {
+    if (!url || userstate.username === undefined) {
       client.say(channel, `Użycie: !sr <link do YouTube>`);
       return;
     }
