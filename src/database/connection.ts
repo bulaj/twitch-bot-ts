@@ -4,7 +4,7 @@ import { logger } from "../services/logger.service";
 let db: Database.Database;
 
 export function initDb() {
-  db = new Database("db/reputation.db");
+  db = new Database("db/database.db");
   db.pragma("journal_mode = WAL");
   const createTable = `
         CREATE TABLE IF NOT EXISTS users (
