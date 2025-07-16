@@ -8,6 +8,7 @@ import { logger } from "../services/logger.service";
 import { NootCommand } from "./misc/noot";
 import { ZerkCommand } from "./misc/zerk";
 import { ChlebCommand } from "./misc/chleb";
+import { EightBallCommand } from "./misc/eighball";
 
 const commands: SimpleCommand[] = [
   PingCommand,
@@ -17,6 +18,7 @@ const commands: SimpleCommand[] = [
   WeatherCommand,
   RepCommand,
   SongRequestCommand,
+  EightBallCommand,
 ];
 
 export const handleCommand = (
