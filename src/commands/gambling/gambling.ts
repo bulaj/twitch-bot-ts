@@ -64,7 +64,7 @@ export const handleGambling = (
   if (message.startsWith(OBSTAW)) {
     const args = message.trim().split(" ");
     const amount =
-      args[1]?.toLowerCase() === "all"
+      args[1]?.toLowerCase() === "allin"
         ? gamblingUser!.points
         : parseInt(args[1]);
     if (isNaN(amount) || amount <= 0) {
