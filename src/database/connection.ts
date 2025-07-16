@@ -36,7 +36,9 @@ const createGamblingDatabase = () => {
       lastDuel INTEGER DEFAULT 0,
       wins INTEGER DEFAULT 0,
       losses INTEGER DEFAULT 0,
-      lastRobbery INTEGER DEFAULT 0
+      lastRobbery INTEGER DEFAULT 0,
+      robberies INTEGER DEFAULT 0,
+      successfulRobberies INTEGER DEFAULT 0
     );
   `;
   gamblingDatabase.exec(createTable);

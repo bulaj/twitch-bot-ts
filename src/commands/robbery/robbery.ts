@@ -2,6 +2,7 @@ import {
   changePoints,
   GamblingUser,
   getGamblingUser,
+  updateRobberyStats,
 } from "../../database/gambling.manager";
 import tmi from "tmi.js";
 import { getGamblingDb } from "../../database/connection";
@@ -88,6 +89,8 @@ export const handleRobbery = (
       `❌ @${user.username} nie udało się napad na @${victim.username} i stracił ${amount} punktów!`,
     );
   }
+
+  updateRobberyStats(user.username, success);
 
   db.prepare(`UPDATE users SET lastRobbery = ? WHERE username = ?`).run(
     now,

@@ -33,6 +33,7 @@ const DUEL = "!duel";
 const AKCEPTUJ = "!akceptuj";
 const TOPWOJOWNICY = "!topwojownicy";
 const ROBBERY = "!napad";
+const TOPROBBERS = "!topnapady";
 
 type TopUser = Pick<
   GamblingUser,
@@ -51,6 +52,7 @@ const commands = [
   AKCEPTUJ,
   TOPWOJOWNICY,
   ROBBERY,
+  TOPROBBERS,
 ];
 
 const pendingDuels: {
@@ -363,6 +365,35 @@ export const handleGambling = (
             .map((u, i) => `${i + 1}. ${u.username} (${u.wins}W/${u.losses}L)`)
             .join(" | ");
     client.say(channel, msg);
+    return;
+  }
+
+  if (message === TOPROBBERS) {
+    const users = db
+      .prepare(
+        `SELECT username, robberies, successfulRobberies 
+     FROM users WHERE robberies > 0 
+     ORDER BY successfulRobberies DESC, robberies DESC LIMIT 5`,
+      )
+      .all() as {
+      username: string;
+      robberies: number;
+      successfulRobberies: number;
+    }[];
+
+    if (users.length === 0) {
+      client.say(channel, `🏴‍☠️ Nikt jeszcze nie próbował napadu.`);
+      return;
+    }
+
+    const msg = users
+      .map(
+        (u, i) =>
+          `${i + 1}. ${u.username}: ${u.successfulRobberies} udanych / ${u.robberies} prób`,
+      )
+      .join(" | ");
+
+    client.say(channel, `🏴‍☠️ Top napadowcy: ${msg}`);
     return;
   }
 };

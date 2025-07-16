@@ -10,6 +10,8 @@ export interface GamblingUser {
   losses: number;
   lastDuel: number;
   lastRobbery: number;
+  robberies: number;
+  successfulRobberies: number;
 }
 
 export const getGamblingUser = (username: string): GamblingUser => {
@@ -61,4 +63,23 @@ export function updateDuelStats(username: string, didWin: boolean) {
       username,
     );
   }
+}
+
+export function updateRobberyStats(username: string, success: boolean) {
+  const db = getGamblingDb();
+  const user = db
+    .prepare(
+      `SELECT robberies, successfulRobberies FROM users WHERE username = ?`,
+    )
+    .get(username) as GamblingUser;
+  if (!user) return;
+
+  const newRobberies = (user.robberies ?? 0) + 1;
+  const newSuccesses = success
+    ? (user.successfulRobberies ?? 0) + 1
+    : user.successfulRobberies;
+
+  db.prepare(
+    `UPDATE users SET robberies = ?, successfulRobberies = ? WHERE username = ?`,
+  ).run(newRobberies, newSuccesses, username);
 }
