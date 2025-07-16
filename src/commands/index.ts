@@ -7,10 +7,12 @@ import { SongRequestCommand } from "./music/songrequest";
 import { logger } from "../services/logger.service";
 import { NootCommand } from "./misc/noot";
 import { ZerkCommand } from "./misc/zerk";
+import { ChlebCommand } from "./misc/chleb";
 
 const commands: SimpleCommand[] = [
   PingCommand,
   ZerkCommand,
+  ChlebCommand,
   NootCommand,
   WeatherCommand,
   RepCommand,

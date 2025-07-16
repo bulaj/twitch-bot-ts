@@ -1,5 +1,8 @@
 import { SimpleCommand } from "../command.interface";
-import { changeReputation, getUser } from "../../database/reputation.manager";
+import {
+  changeReputation,
+  getReputationUser,
+} from "../../database/reputation.manager";
 
 export const RepCommand: SimpleCommand = {
   name: "rep",
@@ -43,7 +46,7 @@ export const RepCommand: SimpleCommand = {
         );
         break;
       case "rep":
-        const user = getUser(targetUser);
+        const user = getReputationUser(targetUser);
         const rep = user ? user.reputation : 0;
         client.say(
           channel,

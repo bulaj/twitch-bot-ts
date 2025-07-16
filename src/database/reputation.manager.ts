@@ -1,21 +1,21 @@
-import { getDb } from "./connection";
+import { getReputationDb } from "./connection";
 
-interface User {
+export interface ReputationUser {
   username: string;
   reputation: number;
 }
 
-export const getUser = (username: string): User | null => {
-  const db = getDb();
+export const getReputationUser = (username: string): ReputationUser => {
+  const db = getReputationDb();
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
-  return stmt.get(username.toLowerCase()) as User | null;
+  return stmt.get(username.toLowerCase()) as ReputationUser;
 };
 
 export const changeReputation = (username: string, amount: number): number => {
-  const db = getDb();
+  const db = getReputationDb();
   const normalizedUser = username.toLowerCase();
 
-  const user = getUser(normalizedUser);
+  const user = getReputationUser(normalizedUser);
   if (!user) {
     db.prepare("INSERT INTO users (username) VALUES (?)").run(normalizedUser);
   }
