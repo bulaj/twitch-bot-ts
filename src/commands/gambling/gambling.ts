@@ -5,20 +5,21 @@ import {
   changePoints,
   GamblingUser,
   getGamblingUser,
-  updateDuelStats,
 } from "../../database/gambling.manager";
 import { getGamblingDb } from "../../database/connection";
-import { handleRobbery } from "../robbery/robbery";
+import { handleRobbery } from "./robbery";
+import {
+  cleanupExpiredDuels,
+  handleDuelAcceptance,
+  handleDuelChallenge,
+} from "./duel";
 
 const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
-const COOLDOWN_DUEL = 60 * 1000;
 const INTEREST_INTERVAL = 60 * 1000;
 const MAX_DEBT = 2000;
 const LOAN_AMOUNT = 1000;
-const DUEL_EXPIRATION = 3 * 60 * 1000;
 const GAMBLING_CHANCE = 0.5;
-const DUEL_CHANCE = 0.5;
 
 export const GAMBLING_START_POINTS = 1000;
 
@@ -54,14 +55,6 @@ const commands = [
   ROBBERY,
   TOPROBBERS,
 ];
-
-const pendingDuels: {
-  [targetUsername: string]: {
-    challenger: string;
-    amount: number;
-    timestamp: number;
-  };
-} = {};
 
 export const handleGambling = (
   client: tmi.Client,
@@ -243,105 +236,13 @@ export const handleGambling = (
       return;
     }
 
-    if (target.toLowerCase() === username) {
-      client.say(channel, `@${username}, nie możesz wyzwać samego siebie.`);
-      return;
-    }
-
-    const challenger = user!;
-    const opponent = getGamblingUser(target.toLowerCase());
-
-    if (!opponent) {
-      client.say(
-        channel,
-        `@${username}, nie znaleziono użytkownika ${target}.`,
-      );
-      return;
-    }
-
-    if (challenger.points < amount || opponent.points < amount) {
-      client.say(
-        channel,
-        `@${username}, jeden z graczy nie ma wystarczająco punktów.`,
-      );
-      return;
-    }
-
-    if (now - challenger.lastDuel < COOLDOWN_DUEL) {
-      const wait = Math.ceil(
-        (COOLDOWN_DUEL - (now - challenger.lastDuel)) / 1000,
-      );
-      client.say(
-        channel,
-        `@${username}, poczekaj ${wait}s przed kolejnym pojedynkiem.`,
-      );
-      return;
-    }
-
-    pendingDuels[target.toLowerCase()] = {
-      challenger: username,
-      amount,
-      timestamp: now,
-    };
-
-    client.say(
-      channel,
-      `⚔️ @${username} wyzwał(a) @${target} na pojedynek o ${amount} pkt! Aby zaakceptować, wpisz !akceptuj`,
-    );
+    handleDuelChallenge(client, channel, username, target, amount, now);
     return;
   }
 
   // --- AKCEPTACJA POJEDYNKU ---
   if (message === AKCEPTUJ) {
-    const pending = pendingDuels[username];
-    if (!pending) {
-      client.say(
-        channel,
-        `@${username}, nie masz żadnych wyzwań do zaakceptowania.`,
-      );
-      return;
-    }
-
-    const challenger = getGamblingUser(pending.challenger);
-    const opponent = user!;
-    const amount = pending.amount;
-
-    if (!challenger || !opponent) {
-      client.say(channel, `Pojedynek nieważny – gracz nie istnieje.`);
-      delete pendingDuels[username];
-      return;
-    }
-
-    if (challenger.points < amount || opponent.points < amount) {
-      client.say(
-        channel,
-        `Pojedynek anulowany – jeden z graczy nie ma wystarczających punktów.`,
-      );
-      delete pendingDuels[username];
-      return;
-    }
-
-    const winner = Math.random() < DUEL_CHANCE ? challenger : opponent;
-    const loser = winner === challenger ? opponent : challenger;
-
-    changePoints(winner.username, amount);
-    changePoints(loser.username, -amount);
-
-    updateDuelStats(winner.username, true);
-    updateDuelStats(loser.username, false);
-
-    db.prepare(`UPDATE users SET lastDuel = ? WHERE username = ?`).run(
-      now,
-      challenger.username,
-    );
-
-    client.say(
-      channel,
-      `⚔️ Pojedynek: @${challenger.username} vs @${opponent.username} o ${amount} pkt! ` +
-        `Wygrał(a) ${winner.username}! hazard`,
-    );
-
-    delete pendingDuels[username];
+    handleDuelAcceptance(client, channel, username, now);
     return;
   }
 
@@ -415,11 +316,4 @@ setInterval(() => {
 }, INTEREST_INTERVAL);
 
 // --- CZYSZCZENIE NIEPOTWIERDZONYCH POJEDYNKÓW ---
-setInterval(() => {
-  const now = Date.now();
-  for (const [target, data] of Object.entries(pendingDuels)) {
-    if (now - data.timestamp > DUEL_EXPIRATION) {
-      delete pendingDuels[target];
-    }
-  }
-}, 30 * 1000);
+setInterval(cleanupExpiredDuels, 30 * 1000);
