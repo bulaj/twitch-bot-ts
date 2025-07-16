@@ -8,7 +8,7 @@ import tmi from "tmi.js";
 import { getGamblingDb } from "../../database/connection";
 
 const COOLDOWN_ROBBERY = 5 * 60 * 1000; // 5 minut cooldown na napad
-const ROBBERY_CHANCE = 0.3;
+const ROBBERY_CHANCE = 0.333;
 export const handleRobbery = (
   client: tmi.Client,
   channel: string,

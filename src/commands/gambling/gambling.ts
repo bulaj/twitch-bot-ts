@@ -406,7 +406,11 @@ setInterval(() => {
   );
   const result = stmt.run(MAX_DEBT * 2);
   if (result.changes > 0) {
-    console.log("💰 Odsetki naliczone dla", result.changes, "użytkowników.");
+    console.log(
+      "💰 Odsetki od pożyczek naliczone dla",
+      result.changes,
+      "użytkowników.",
+    );
   }
 }, INTEREST_INTERVAL);
 
