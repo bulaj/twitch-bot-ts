@@ -9,6 +9,7 @@ import { NootCommand } from "./noot";
 import { ZerkCommand } from "./zerk";
 import { ChlebCommand } from "./chleb";
 import { EightBallCommand } from "./eighball";
+import { WinCommand } from "./win";
 
 const commands: SimpleCommand[] = [
   PingCommand,
@@ -19,6 +20,7 @@ const commands: SimpleCommand[] = [
   RepCommand,
   SongRequestCommand,
   EightBallCommand,
+  WinCommand,
 ];
 
 export const handleSimpleCommand = (

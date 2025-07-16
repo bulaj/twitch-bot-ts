@@ -52,7 +52,7 @@ export const changeDebt = (username: string, amount: number): number => {
   return result.debt;
 };
 
-export function updateDuelStats(username: string, didWin: boolean) {
+export const updateDuelStats = (username: string, didWin: boolean): void => {
   const db = getPointsDb();
   if (didWin) {
     db.prepare("UPDATE users SET wins = wins + 1 WHERE username = ?").run(
@@ -63,9 +63,12 @@ export function updateDuelStats(username: string, didWin: boolean) {
       username,
     );
   }
-}
+};
 
-export function updateRobberyStats(username: string, success: boolean) {
+export const updateRobberyStats = (
+  username: string,
+  success: boolean,
+): void => {
   const db = getPointsDb();
   const user = db
     .prepare(
@@ -82,4 +85,4 @@ export function updateRobberyStats(username: string, success: boolean) {
   db.prepare(
     `UPDATE users SET robberies = ?, successfulRobberies = ? WHERE username = ?`,
   ).run(newRobberies, newSuccesses, username);
-}
+};

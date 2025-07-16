@@ -4,6 +4,7 @@ import { initDb } from "./database/connection";
 import { logger } from "./services/logger.service";
 import { handleSimpleCommand } from "./commands/misc";
 import { handlePointsCommands } from "./commands/points";
+import { handleAnyMessage } from "./messages";
 
 initDb();
 
@@ -21,7 +22,7 @@ const options: tmi.Options = {
 
 const client = new tmi.Client(options);
 
-const onConnect = (address: string, port: number) => {
+const handleConnect = (address: string, port: number) => {
   logger.info(`Bot connected to ${address}:${port}`);
 };
 
@@ -38,6 +39,7 @@ const handleMessage = (
   }
 
   setTimeout(() => {
+    handleAnyMessage(channel, userstate, message);
     handlePointsCommands(client, channel, userstate, message);
     handleSimpleCommand(client, channel, userstate, message);
   }, 2000);
@@ -47,6 +49,6 @@ const handleError = (err: Error) => {
   logger.error("Failed to connect:", err);
 };
 
-client.on("connected", onConnect);
+client.on("connected", handleConnect);
 client.on("message", handleMessage);
 client.connect().catch(handleError);
