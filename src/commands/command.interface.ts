@@ -1,6 +1,6 @@
 import tmi from "tmi.js";
 
-export interface Command {
+export interface SimpleCommand {
   name: string;
   description: string;
   execute(

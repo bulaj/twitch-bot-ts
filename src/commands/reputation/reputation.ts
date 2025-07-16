@@ -1,7 +1,7 @@
-import { Command } from "../command.interface";
+import { SimpleCommand } from "../command.interface";
 import { changeReputation, getUser } from "../../database/reputation.manager";
 
-export const RepCommand: Command = {
+export const RepCommand: SimpleCommand = {
   name: "rep",
   description:
     "Zarządza reputacją użytkowników. Użycie: !rep @uzytkownik, !rep+ @uzytkownik, !rep- @uzytkownik",
@@ -51,5 +51,6 @@ export const RepCommand: Command = {
         );
         break;
     }
+    setTimeout(() => {}, 3000);
   },
 };

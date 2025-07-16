@@ -1,7 +1,7 @@
-import { Command } from "../command.interface";
+import { SimpleCommand } from "../command.interface";
 import { getWeather } from "../../services/weather.service";
 
-export const WeatherCommand: Command = {
+export const WeatherCommand: SimpleCommand = {
   name: "pogoda",
   description: "Wyświetla aktualną pogodę dla podanego miasta.",
   async execute(client, channel, userstate, message, args) {

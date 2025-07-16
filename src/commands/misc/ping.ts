@@ -1,9 +1,11 @@
-import { Command } from "../command.interface";
+import { SimpleCommand } from "../command.interface";
 
-export const PingCommand: Command = {
+export const PingCommand: SimpleCommand = {
   name: "ping",
   description: 'Odpowiada "Pong!"',
   execute(client, channel) {
-    client.say(channel, "Pong!");
+    setTimeout(() => {
+      client.say(channel, "Pong!");
+    }, 1000);
   },
 };

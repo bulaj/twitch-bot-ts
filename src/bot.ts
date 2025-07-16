@@ -1,8 +1,9 @@
 import tmi from "tmi.js";
 import { config } from "./config";
-import { handleCommand } from "./commands";
 import { initDb } from "./database/connection";
 import { logger } from "./services/logger.service";
+import { handleCommand } from "./commands";
+import { handleGambling } from "./commands/gambling/gambling";
 
 initDb();
 
@@ -24,20 +25,26 @@ const onConnect = (address: string, port: number) => {
   logger.info(`Bot connected to ${address}:${port}`);
 };
 
-const onMessage = (
+const handleMessage = (
   channel: string,
   userstate: tmi.ChatUserstate,
   message: string,
   self: boolean,
 ) => {
   if (self) return;
+
+  if (!userstate.username) {
+    return;
+  }
+
+  handleGambling(client, channel, userstate, message);
   handleCommand(client, channel, userstate, message);
 };
 
-const onError = (err: Error) => {
+const handleError = (err: Error) => {
   logger.error("Failed to connect:", err);
 };
 
 client.on("connected", onConnect);
-client.on("message", onMessage);
-client.connect().catch(onError);
+client.on("message", handleMessage);
+client.connect().catch(handleError);

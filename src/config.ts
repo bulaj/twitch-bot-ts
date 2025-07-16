@@ -27,7 +27,7 @@ function createConfig(): Config {
     twitch: {
       username: getEnvVar("TWITCH_BOT_USERNAME"),
       oauthToken: getEnvVar("TWITCH_OAUTH_TOKEN"),
-      channels: [getEnvVar("TWITCH_CHANNEL")],
+      channels: getEnvVar("TWITCH_CHANNEL").split(", "),
     },
     weather: {
       apiKey: getEnvVar("WEATHER_API_KEY"),

@@ -1,13 +1,17 @@
 import tmi from "tmi.js";
-import { Command } from "./command.interface";
+import { SimpleCommand } from "./command.interface";
 import { PingCommand } from "./misc/ping";
 import { WeatherCommand } from "./weather/weather";
 import { RepCommand } from "./reputation/reputation";
 import { SongRequestCommand } from "./music/songrequest";
 import { logger } from "../services/logger.service";
+import { NootCommand } from "./misc/noot";
+import { ZerkCommand } from "./misc/zerk";
 
-const commands: Command[] = [
+const commands: SimpleCommand[] = [
   PingCommand,
+  ZerkCommand,
+  NootCommand,
   WeatherCommand,
   RepCommand,
   SongRequestCommand,
@@ -31,7 +35,8 @@ export const handleCommand = (
   if (commandToExecute) {
     logger.info(`Executing command: !${commandName} by ${userstate.username}`);
     commandToExecute.execute(client, channel, userstate, message, args);
-  } else {
-    logger.warn(`Unknown command: !${commandName} by ${userstate.username}`);
   }
-}
+  // else {
+  //   logger.warn(`Unknown command: !${commandName} by ${userstate.username}`);
+  // }
+};

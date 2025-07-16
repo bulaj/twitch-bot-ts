@@ -1,7 +1,7 @@
-import { Command } from "../command.interface";
+import { SimpleCommand } from "../command.interface";
 import { musicService } from "../../services/music.service";
 
-export const SongRequestCommand: Command = {
+export const SongRequestCommand: SimpleCommand = {
   name: "sr",
   description: "Dodaje piosenkę z YouTube do kolejki. Użycie: !sr <link>",
   async execute(client, channel, userstate, message, args) {
