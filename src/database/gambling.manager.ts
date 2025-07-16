@@ -9,6 +9,7 @@ export interface GamblingUser {
   wins: number;
   losses: number;
   lastDuel: number;
+  lastRobbery: number;
 }
 
 export const getGamblingUser = (username: string): GamblingUser => {

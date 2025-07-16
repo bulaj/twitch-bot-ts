@@ -8,6 +8,7 @@ import {
   updateDuelStats,
 } from "../../database/gambling.manager";
 import { getGamblingDb } from "../../database/connection";
+import { handleRobbery } from "../robbery/robbery";
 
 const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
@@ -31,6 +32,7 @@ const TOPBOGACZE = "!topbogacze";
 const DUEL = "!duel";
 const AKCEPTUJ = "!akceptuj";
 const TOPWOJOWNICY = "!topwojownicy";
+const ROBBERY = "!napad";
 
 type TopUser = Pick<
   GamblingUser,
@@ -48,6 +50,7 @@ const commands = [
   DUEL,
   AKCEPTUJ,
   TOPWOJOWNICY,
+  ROBBERY,
 ];
 
 const pendingDuels: {
@@ -78,6 +81,11 @@ export const handleGambling = (
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(username, 1000, 0, 0, 0, 0, 0, 0);
     user = getGamblingUser(username);
+  }
+
+  if (message.startsWith(ROBBERY)) {
+    handleRobbery(client, channel, userstate, message, user, now);
+    return;
   }
 
   logger.info(`Gambling: ${message} by ${username}`);
