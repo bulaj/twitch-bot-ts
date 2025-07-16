@@ -1,6 +1,6 @@
-import { getGamblingDb } from "./connection";
+import { getPointsDb } from "./connection";
 
-export interface GamblingUser {
+export interface PointsUser {
   username: string;
   points: number;
   debt: number;
@@ -14,17 +14,17 @@ export interface GamblingUser {
   successfulRobberies: number;
 }
 
-export const getGamblingUser = (username: string): GamblingUser => {
-  const db = getGamblingDb();
+export const getPointsUser = (username: string): PointsUser => {
+  const db = getPointsDb();
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
-  return stmt.get(username.toLowerCase()) as GamblingUser;
+  return stmt.get(username.toLowerCase()) as PointsUser;
 };
 
 export const changePoints = (username: string, amount: number): number => {
-  const db = getGamblingDb();
+  const db = getPointsDb();
   const normalizedUser = username.toLowerCase();
 
-  const user = getGamblingUser(normalizedUser);
+  const user = getPointsUser(normalizedUser);
   if (!user) {
     db.prepare("INSERT INTO users (username) VALUES (?)").run(normalizedUser);
   }
@@ -37,10 +37,10 @@ export const changePoints = (username: string, amount: number): number => {
 };
 
 export const changeDebt = (username: string, amount: number): number => {
-  const db = getGamblingDb();
+  const db = getPointsDb();
   const normalizedUser = username.toLowerCase();
 
-  const user = getGamblingUser(normalizedUser);
+  const user = getPointsUser(normalizedUser);
   if (!user) {
     db.prepare("INSERT INTO users (username) VALUES (?)").run(normalizedUser);
   }
@@ -53,7 +53,7 @@ export const changeDebt = (username: string, amount: number): number => {
 };
 
 export function updateDuelStats(username: string, didWin: boolean) {
-  const db = getGamblingDb();
+  const db = getPointsDb();
   if (didWin) {
     db.prepare("UPDATE users SET wins = wins + 1 WHERE username = ?").run(
       username,
@@ -66,12 +66,12 @@ export function updateDuelStats(username: string, didWin: boolean) {
 }
 
 export function updateRobberyStats(username: string, success: boolean) {
-  const db = getGamblingDb();
+  const db = getPointsDb();
   const user = db
     .prepare(
       `SELECT robberies, successfulRobberies FROM users WHERE username = ?`,
     )
-    .get(username) as GamblingUser;
+    .get(username) as PointsUser;
   if (!user) return;
 
   const newRobberies = (user.robberies ?? 0) + 1;

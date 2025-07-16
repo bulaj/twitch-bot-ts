@@ -1,4 +1,4 @@
-import { SimpleCommand } from "../command.interface";
+import { SimpleCommand } from "../misc/command.interface";
 import { musicService } from "../../services/music.service";
 
 export const SongRequestCommand: SimpleCommand = {

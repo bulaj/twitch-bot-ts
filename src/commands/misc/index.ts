@@ -1,14 +1,14 @@
 import tmi from "tmi.js";
 import { SimpleCommand } from "./command.interface";
-import { PingCommand } from "./misc/ping";
-import { WeatherCommand } from "./weather/weather";
-import { RepCommand } from "./reputation/reputation";
-import { SongRequestCommand } from "./music/songrequest";
-import { logger } from "../services/logger.service";
-import { NootCommand } from "./misc/noot";
-import { ZerkCommand } from "./misc/zerk";
-import { ChlebCommand } from "./misc/chleb";
-import { EightBallCommand } from "./misc/eighball";
+import { PingCommand } from "./ping";
+import { WeatherCommand } from "../weather/weather";
+import { RepCommand } from "../reputation/reputation";
+import { SongRequestCommand } from "../music/songrequest";
+import { logger } from "../../services/logger.service";
+import { NootCommand } from "./noot";
+import { ZerkCommand } from "./zerk";
+import { ChlebCommand } from "./chleb";
+import { EightBallCommand } from "./eighball";
 
 const commands: SimpleCommand[] = [
   PingCommand,
@@ -21,7 +21,7 @@ const commands: SimpleCommand[] = [
   EightBallCommand,
 ];
 
-export const handleCommand = (
+export const handleSimpleCommand = (
   client: tmi.Client,
   channel: string,
   userstate: tmi.ChatUserstate,

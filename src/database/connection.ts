@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { logger } from "../services/logger.service";
-import { GAMBLING_START_POINTS } from "../commands/gambling/gambling";
+import { GAMBLING_START_POINTS } from "../commands/points";
 
 let reputationDatabase: Database.Database;
 let gamblingDatabase: Database.Database;
@@ -24,7 +24,7 @@ const createReputationDatabase = () => {
 };
 
 const createGamblingDatabase = () => {
-  gamblingDatabase = new Database("db/gambling.db");
+  gamblingDatabase = new Database("db/points.db");
   gamblingDatabase.pragma("journal_mode = WAL");
   const createTable = `
     CREATE TABLE IF NOT EXISTS users (
@@ -52,7 +52,7 @@ export const getReputationDb = (): Database.Database => {
   return reputationDatabase;
 };
 
-export const getGamblingDb = (): Database.Database => {
+export const getPointsDb = (): Database.Database => {
   if (!gamblingDatabase) {
     throw new Error("Gambling database not initialized!");
   }

@@ -1,4 +1,4 @@
-import { SimpleCommand } from "../command.interface";
+import { SimpleCommand } from "./command.interface";
 
 export const ZerkCommand: SimpleCommand = {
   name: "zerk",

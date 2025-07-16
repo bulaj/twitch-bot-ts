@@ -3,10 +3,10 @@ import { logger } from "../../services/logger.service";
 import {
   changeDebt,
   changePoints,
-  GamblingUser,
-  getGamblingUser,
-} from "../../database/gambling.manager";
-import { getGamblingDb } from "../../database/connection";
+  getPointsUser,
+  PointsUser,
+} from "../../database/points.manager";
+import { getPointsDb } from "../../database/connection";
 import { handleRobbery } from "./robbery";
 import {
   cleanupExpiredDuels,
@@ -37,11 +37,11 @@ const ROBBERY = "!napad";
 const TOPROBBERS = "!topnapady";
 
 type TopUser = Pick<
-  GamblingUser,
+  PointsUser,
   "username" | "points" | "debt" | "wins" | "losses"
 >;
 
-const commands = [
+const pointsCommands = [
   OBSTAW,
   POZYCZKA,
   SALDO,
@@ -56,26 +56,26 @@ const commands = [
   TOPROBBERS,
 ];
 
-export const handleGambling = (
+export const handlePointsCommands = (
   client: tmi.Client,
   channel: string,
   userstate: tmi.ChatUserstate,
   message: string,
 ) => {
   if (!userstate.username) return;
-  if (!commands.some((cmd) => message.startsWith(cmd))) return;
+  if (!pointsCommands.some((cmd) => message.startsWith(cmd))) return;
 
-  const db = getGamblingDb();
+  const db = getPointsDb();
   const username = userstate.username.toLowerCase();
   const now = Date.now();
 
-  let user = getGamblingUser(username);
+  let user = getPointsUser(username);
   if (!user) {
     db.prepare(
       `INSERT INTO users (username, points, debt, lastBet, lastLoan, lastDuel, wins, losses)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(username, 1000, 0, 0, 0, 0, 0, 0);
-    user = getGamblingUser(username);
+    user = getPointsUser(username);
   }
 
   if (message.startsWith(ROBBERY)) {
@@ -83,7 +83,7 @@ export const handleGambling = (
     return;
   }
 
-  logger.info(`Gambling: ${message} by ${username}`);
+  logger.info(`Command: ${message} by ${username}`);
 
   // --- OBSTAWIANIE ---
   if (message.startsWith(OBSTAW)) {
@@ -301,7 +301,7 @@ export const handleGambling = (
 
 // --- ODSETKI ---
 setInterval(() => {
-  const db = getGamblingDb();
+  const db = getPointsDb();
   const stmt = db.prepare(
     `UPDATE users SET debt = debt + 1 WHERE debt > 0 AND debt < ?`,
   );

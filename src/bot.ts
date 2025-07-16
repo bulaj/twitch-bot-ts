@@ -2,8 +2,8 @@ import tmi from "tmi.js";
 import { config } from "./config";
 import { initDb } from "./database/connection";
 import { logger } from "./services/logger.service";
-import { handleCommand } from "./commands";
-import { handleGambling } from "./commands/gambling/gambling";
+import { handleSimpleCommand } from "./commands/misc";
+import { handlePointsCommands } from "./commands/points";
 
 initDb();
 
@@ -38,8 +38,8 @@ const handleMessage = (
   }
 
   setTimeout(() => {
-    handleGambling(client, channel, userstate, message);
-    handleCommand(client, channel, userstate, message);
+    handlePointsCommands(client, channel, userstate, message);
+    handleSimpleCommand(client, channel, userstate, message);
   }, 2000);
 };
 

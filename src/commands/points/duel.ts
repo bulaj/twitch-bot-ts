@@ -1,10 +1,10 @@
 import tmi from "tmi.js";
 import {
   changePoints,
-  getGamblingUser,
+  getPointsUser,
   updateDuelStats,
-} from "../../database/gambling.manager";
-import { getGamblingDb } from "../../database/connection";
+} from "../../database/points.manager";
+import { getPointsDb } from "../../database/connection";
 
 const COOLDOWN_DUEL = 60 * 1000;
 export const DUEL_EXPIRATION = 3 * 60 * 1000;
@@ -31,8 +31,8 @@ export const handleDuelChallenge = (
     return;
   }
 
-  const challenger = getGamblingUser(username);
-  const opponent = getGamblingUser(target.toLowerCase());
+  const challenger = getPointsUser(username);
+  const opponent = getPointsUser(target.toLowerCase());
 
   if (!opponent) {
     client.say(channel, `@${username}, nie znaleziono użytkownika ${target}.`);
@@ -85,8 +85,8 @@ export const handleDuelAcceptance = (
     return;
   }
 
-  const challenger = getGamblingUser(pending.challenger);
-  const opponent = getGamblingUser(username);
+  const challenger = getPointsUser(pending.challenger);
+  const opponent = getPointsUser(username);
   const amount = pending.amount;
 
   if (!challenger || !opponent) {
@@ -113,7 +113,7 @@ export const handleDuelAcceptance = (
   updateDuelStats(winner.username, true);
   updateDuelStats(loser.username, false);
 
-  const db = getGamblingDb();
+  const db = getPointsDb();
   db.prepare(`UPDATE users SET lastDuel = ? WHERE username = ?`).run(
     now,
     challenger.username,

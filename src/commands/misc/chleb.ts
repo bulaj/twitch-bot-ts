@@ -1,4 +1,4 @@
-import { SimpleCommand } from "../command.interface";
+import { SimpleCommand } from "./command.interface";
 import { chleby } from "./constants";
 
 const COOLDOWN_TIME = 60 * 1000; // seconds

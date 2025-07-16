@@ -1,11 +1,11 @@
 import {
   changePoints,
-  GamblingUser,
-  getGamblingUser,
+  getPointsUser,
+  PointsUser,
   updateRobberyStats,
-} from "../../database/gambling.manager";
+} from "../../database/points.manager";
 import tmi from "tmi.js";
-import { getGamblingDb } from "../../database/connection";
+import { getPointsDb } from "../../database/connection";
 
 const COOLDOWN_ROBBERY = 5 * 60 * 1000; // 5 minut cooldown na napad
 const ROBBERY_CHANCE = 0.333;
@@ -14,7 +14,7 @@ export const handleRobbery = (
   channel: string,
   userstate: tmi.ChatUserstate,
   message: string,
-  user: GamblingUser,
+  user: PointsUser,
   now: number,
 ) => {
   if (!userstate.username) return;
@@ -33,8 +33,8 @@ export const handleRobbery = (
     return;
   }
 
-  const db = getGamblingDb();
-  const victim = getGamblingUser(target.toLowerCase());
+  const db = getPointsDb();
+  const victim = getPointsUser(target.toLowerCase());
 
   if (!victim) {
     client.say(

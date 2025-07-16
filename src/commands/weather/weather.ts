@@ -1,4 +1,4 @@
-import { SimpleCommand } from "../command.interface";
+import { SimpleCommand } from "../misc/command.interface";
 import { getWeather } from "../../services/weather.service";
 
 export const WeatherCommand: SimpleCommand = {
