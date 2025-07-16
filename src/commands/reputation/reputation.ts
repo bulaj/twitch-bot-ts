@@ -4,6 +4,8 @@ import {
   getReputationUser,
 } from "../../database/reputation.manager";
 
+const REP_COOLDOWN = 60 * 1000; // 60 sekund
+const repCooldowns: Record<string, number> = {}; // username → timestamp
 export const RepCommand: SimpleCommand = {
   name: "rep",
   description:
@@ -32,20 +34,34 @@ export const RepCommand: SimpleCommand = {
 
     switch (action) {
       case "rep+":
-        const newRepPlus = changeReputation(targetUser, 1);
+      case "rep-": {
+        const now = Date.now();
+        const key = userstate.username!.toLowerCase();
+        const lastUsed = repCooldowns[key] || 0;
+
+        if (now - lastUsed < REP_COOLDOWN) {
+          const wait = Math.ceil((REP_COOLDOWN - (now - lastUsed)) / 1000);
+          client.say(
+            channel,
+            `@${userstate.username}, poczekaj ${wait}s przed kolejną zmianą reputacji.`,
+          );
+          return;
+        }
+
+        // zaktualizuj cooldown
+        repCooldowns[key] = now;
+
+        const change = action === "rep+" ? 1 : -1;
+        const newRep = changeReputation(targetUser, change);
+
         client.say(
           channel,
-          `Dodałeś punkt reputacji dla ${targetUser}! Ma teraz ${newRepPlus} pkt.`,
+          `${action === "rep+" ? "Dodałeś" : "Odjąłeś"} punkt reputacji dla ${targetUser}! Ma teraz ${newRep} pkt.`,
         );
         break;
-      case "rep-":
-        const newRepMinus = changeReputation(targetUser, -1);
-        client.say(
-          channel,
-          `Odjąłeś punkt reputacji dla ${targetUser}! Ma teraz ${newRepMinus} pkt.`,
-        );
-        break;
-      case "rep":
+      }
+
+      case "rep": {
         const user = getReputationUser(targetUser);
         const rep = user ? user.reputation : 0;
         client.say(
@@ -53,7 +69,7 @@ export const RepCommand: SimpleCommand = {
           `Użytkownik ${targetUser} ma ${rep} punktów reputacji.`,
         );
         break;
+      }
     }
-    setTimeout(() => {}, 3000);
   },
 };

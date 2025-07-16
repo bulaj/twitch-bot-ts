@@ -37,8 +37,10 @@ const handleMessage = (
     return;
   }
 
-  handleGambling(client, channel, userstate, message);
-  handleCommand(client, channel, userstate, message);
+  setTimeout(() => {
+    handleGambling(client, channel, userstate, message);
+    handleCommand(client, channel, userstate, message);
+  }, 2000);
 };
 
 const handleError = (err: Error) => {

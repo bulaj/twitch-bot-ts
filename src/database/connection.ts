@@ -32,7 +32,10 @@ const createGamblingDatabase = () => {
       points INTEGER DEFAULT ${GAMBLING_START_POINTS},
       debt INTEGER DEFAULT 0,
       lastBet INTEGER DEFAULT 0,
-      lastLoan INTEGER DEFAULT 0
+      lastLoan INTEGER DEFAULT 0,
+      lastDuel INTEGER DEFAULT 0,
+      wins INTEGER DEFAULT 0,
+      losses INTEGER DEFAULT 0
     );
   `;
   gamblingDatabase.exec(createTable);
@@ -48,7 +51,7 @@ export const getReputationDb = (): Database.Database => {
 
 export const getGamblingDb = (): Database.Database => {
   if (!gamblingDatabase) {
-    throw new Error("Reputation database not initialized!");
+    throw new Error("Gambling database not initialized!");
   }
   return gamblingDatabase;
 };

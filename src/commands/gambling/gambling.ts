@@ -5,15 +5,20 @@ import {
   changePoints,
   GamblingUser,
   getGamblingUser,
+  updateDuelStats,
 } from "../../database/gambling.manager";
 import { getGamblingDb } from "../../database/connection";
 
 const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
+const COOLDOWN_DUEL = 60 * 1000;
 const INTEREST_INTERVAL = 60 * 1000;
-const MAX_DEBT = 5000;
-const STANDARD_MULTIPLIER = 0.5;
+const MAX_DEBT = 2000;
 const LOAN_AMOUNT = 1000;
+const DUEL_EXPIRATION = 3 * 60 * 1000;
+const GAMBLING_CHANCE = 0.5;
+const DUEL_CHANCE = 0.5;
+
 export const GAMBLING_START_POINTS = 1000;
 
 const OBSTAW = "!obstaw";
@@ -23,9 +28,14 @@ const PUNKTY = "!punkty";
 const TOPDLUZNICY = "!topdluznicy";
 const DLUGI = "!dlugi";
 const TOPBOGACZE = "!topbogacze";
-const SPLAC = "!splac";
+const DUEL = "!duel";
+const AKCEPTUJ = "!akceptuj";
+const TOPWOJOWNICY = "!topwojownicy";
 
-type TopUser = Pick<GamblingUser, "username" | "points" | "debt">;
+type TopUser = Pick<
+  GamblingUser,
+  "username" | "points" | "debt" | "wins" | "losses"
+>;
 
 const commands = [
   OBSTAW,
@@ -35,8 +45,18 @@ const commands = [
   TOPDLUZNICY,
   DLUGI,
   TOPBOGACZE,
-  SPLAC,
+  DUEL,
+  AKCEPTUJ,
+  TOPWOJOWNICY,
 ];
+
+const pendingDuels: {
+  [targetUsername: string]: {
+    challenger: string;
+    amount: number;
+    timestamp: number;
+  };
+} = {};
 
 export const handleGambling = (
   client: tmi.Client,
@@ -51,22 +71,23 @@ export const handleGambling = (
   const username = userstate.username.toLowerCase();
   const now = Date.now();
 
-  let gamblingUser = getGamblingUser(username);
-  if (!gamblingUser) {
+  let user = getGamblingUser(username);
+  if (!user) {
     db.prepare(
-      `INSERT INTO users (username, points, debt, lastBet, lastLoan) VALUES (?, ?, ?, ?, ?)`,
-    ).run(username, 1000, 0, 0, 0);
-    gamblingUser = getGamblingUser(username);
+      `INSERT INTO users (username, points, debt, lastBet, lastLoan, lastDuel, wins, losses)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(username, 1000, 0, 0, 0, 0, 0, 0);
+    user = getGamblingUser(username);
   }
 
   logger.info(`Gambling: ${message} by ${username}`);
 
+  // --- OBSTAWIANIE ---
   if (message.startsWith(OBSTAW)) {
     const args = message.trim().split(" ");
     const amount =
-      args[1]?.toLowerCase() === "allin"
-        ? gamblingUser!.points
-        : parseInt(args[1]);
+      args[1]?.toLowerCase() === "all" ? user!.points : parseInt(args[1]);
+
     if (isNaN(amount) || amount <= 0) {
       client.say(
         channel,
@@ -75,11 +96,8 @@ export const handleGambling = (
       return;
     }
 
-    if (now - (gamblingUser?.lastBet || 0) < COOLDOWN) {
-      const wait = Math.ceil(
-        (COOLDOWN - (now - (gamblingUser?.lastBet || 0))) /
-          GAMBLING_START_POINTS,
-      );
+    if (now - user.lastBet < COOLDOWN) {
+      const wait = Math.ceil((COOLDOWN - (now - user.lastBet)) / 1000);
       client.say(
         channel,
         `@${username}, odczekaj ${wait}s przed kolejnym obstawieniem. hazard`,
@@ -87,15 +105,15 @@ export const handleGambling = (
       return;
     }
 
-    if ((gamblingUser?.points || 0) < amount) {
+    if (user.points < amount) {
       client.say(
         channel,
-        `@${username}, masz tylko ${gamblingUser?.points} punktów. hazard`,
+        `@${username}, masz tylko ${user.points} punktów. hazard`,
       );
       return;
     }
 
-    const win = Math.random() < STANDARD_MULTIPLIER;
+    const win = Math.random() < GAMBLING_CHANCE;
     const diff = win ? amount : -amount;
     const updated = changePoints(username, diff);
 
@@ -113,24 +131,23 @@ export const handleGambling = (
     return;
   }
 
+  // --- POZYCZKA ---
   if (message === POZYCZKA) {
-    if ((gamblingUser?.points || 0) > 0) {
+    if (user.points > 0) {
       client.say(channel, `@${username}, pożyczki tylko przy zerowym saldzie.`);
       return;
     }
 
-    if ((gamblingUser?.debt || 0) >= MAX_DEBT) {
+    if (user.debt >= MAX_DEBT) {
       client.say(
         channel,
-        `@${username}, masz już zbyt duży dług (${gamblingUser?.debt}).`,
+        `@${username}, masz już zbyt duży dług (${user.debt}).`,
       );
       return;
     }
 
-    if (now - (gamblingUser?.lastLoan || 0) < COOLDOWN_LOAN) {
-      const wait = Math.ceil(
-        (COOLDOWN_LOAN - (now - (gamblingUser?.lastLoan || 0))) / 1000,
-      );
+    if (now - user.lastLoan < COOLDOWN_LOAN) {
+      const wait = Math.ceil((COOLDOWN_LOAN - (now - user.lastLoan)) / 1000);
       client.say(
         channel,
         `@${username}, poczekaj ${wait}s na kolejną pożyczkę.`,
@@ -147,71 +164,27 @@ export const handleGambling = (
 
     client.say(
       channel,
-      `💸 @${username}, pożyczka przyznana. Twój dług: ${(gamblingUser?.debt || 0) + LOAN_AMOUNT}`,
+      `💸 @${username}, pożyczka przyznana. Twój dług: ${user.debt + LOAN_AMOUNT}`,
     );
     return;
   }
 
-  if (message.startsWith(SPLAC)) {
-    if ((gamblingUser?.debt || 0) <= 0) {
-      client.say(channel, `@${username}, nie masz żadnego długu do spłaty.`);
-      return;
-    }
-
-    const args = message.trim().split(" ");
-    const repayAmount =
-      args[1]?.toLowerCase() === "all"
-        ? Math.min(gamblingUser.points, gamblingUser.debt)
-        : parseInt(args[1]);
-
-    if (isNaN(repayAmount) || repayAmount <= 0) {
-      client.say(channel, `@${username}, podaj poprawną kwotę do spłaty.`);
-      return;
-    }
-
-    if (gamblingUser.points < repayAmount) {
-      client.say(
-        channel,
-        `@${username}, masz tylko ${gamblingUser.points} punktów. Nie możesz spłacić ${repayAmount}.`,
-      );
-      return;
-    }
-
-    if (repayAmount > gamblingUser.debt) {
-      client.say(
-        channel,
-        `@${username}, Twój dług to tylko ${gamblingUser.debt} punktów. hazard`,
-      );
-      return;
-    }
-
-    changePoints(username, -repayAmount);
-    changeDebt(username, -repayAmount);
-    gamblingUser = getGamblingUser(username);
-
-    client.say(
-      channel,
-      `✅ @${username}, spłacono ${repayAmount} punktów. Pozostały dług: ${gamblingUser.debt}`,
-    );
-    return;
-  }
-
+  // --- SALDO ---
   if (message === SALDO) {
     client.say(
       channel,
-      `@${username}, punkty: ${gamblingUser?.points || 0}, dług: ${gamblingUser?.debt || 0}`,
+      `@${username}, punkty: ${user.points}, dług: ${user.debt}`,
     );
     return;
   }
 
+  // --- PUNKTY ---
   if (message === PUNKTY) {
-    client.say(
-      channel,
-      `@${username}, masz ${gamblingUser?.points || 0} punktów. hazard`,
-    );
+    client.say(channel, `@${username}, masz ${user.points} punktów. hazard`);
     return;
   }
 
+  // --- DLUGI ---
   if (message === TOPDLUZNICY || message === DLUGI) {
     const users = db
       .prepare(
@@ -219,17 +192,18 @@ export const handleGambling = (
       )
       .all() as TopUser[];
 
-    if (users.length === 0) {
-      client.say(channel, `💳 Nikt jeszcze nie ma długu. Czat czysty jak łza.`);
-    } else {
-      const msg = users
-        .map((user, i) => `${i + 1}. ${user.username}: ${user.debt} pkt`)
-        .join(" | ");
-      client.say(channel, `📉 Top dłużnicy: ${msg} hazard`);
-    }
+    const msg =
+      users.length === 0
+        ? `💳 Nikt jeszcze nie ma długu. Czat czysty jak łza.`
+        : `📉 Top dłużnicy: ` +
+          users
+            .map((u, i) => `${i + 1}. ${u.username}: ${u.debt} pkt`)
+            .join(" | ");
+    client.say(channel, msg);
     return;
   }
 
+  // --- TOP BOGACZE ---
   if (message === TOPBOGACZE) {
     const users = db
       .prepare(
@@ -237,26 +211,172 @@ export const handleGambling = (
       )
       .all() as TopUser[];
 
-    if (users.length === 0) {
-      client.say(channel, `😔 Nikt jeszcze nie ma punktów. Czat zbiedniał.`);
-    } else {
-      const msg = users
-        .map((u, i) => `${i + 1}. ${u.username}: ${u.points} pkt`)
-        .join(" | ");
-      client.say(channel, `💰 Top bogacze: ${msg}`);
+    const msg =
+      users.length === 0
+        ? `😔 Nikt jeszcze nie ma punktów. Czat zbiedniał.`
+        : `💰 Top bogacze: ` +
+          users
+            .map((u, i) => `${i + 1}. ${u.username}: ${u.points} pkt`)
+            .join(" | ");
+    client.say(channel, msg);
+    return;
+  }
+
+  // --- POJEDYNEK ---
+  if (message.startsWith(DUEL)) {
+    const args = message.trim().split(" ");
+    const target = args[1]?.startsWith("@") ? args[1].substring(1) : args[1];
+    const amount = parseInt(args[2]);
+
+    if (!target || isNaN(amount) || amount <= 0) {
+      client.say(channel, `@${username}, użycie: !duel @nick <kwota>`);
+      return;
     }
+
+    if (target.toLowerCase() === username) {
+      client.say(channel, `@${username}, nie możesz wyzwać samego siebie.`);
+      return;
+    }
+
+    const challenger = user!;
+    const opponent = getGamblingUser(target.toLowerCase());
+
+    if (!opponent) {
+      client.say(
+        channel,
+        `@${username}, nie znaleziono użytkownika ${target}.`,
+      );
+      return;
+    }
+
+    if (challenger.points < amount || opponent.points < amount) {
+      client.say(
+        channel,
+        `@${username}, jeden z graczy nie ma wystarczająco punktów.`,
+      );
+      return;
+    }
+
+    if (now - challenger.lastDuel < COOLDOWN_DUEL) {
+      const wait = Math.ceil(
+        (COOLDOWN_DUEL - (now - challenger.lastDuel)) / 1000,
+      );
+      client.say(
+        channel,
+        `@${username}, poczekaj ${wait}s przed kolejnym pojedynkiem.`,
+      );
+      return;
+    }
+
+    pendingDuels[target.toLowerCase()] = {
+      challenger: username,
+      amount,
+      timestamp: now,
+    };
+
+    client.say(
+      channel,
+      `⚔️ @${username} wyzwał(a) @${target} na pojedynek o ${amount} pkt! Aby zaakceptować, wpisz !akceptuj`,
+    );
+    return;
+  }
+
+  // --- AKCEPTACJA POJEDYNKU ---
+  if (message === AKCEPTUJ) {
+    const pending = pendingDuels[username];
+    if (!pending) {
+      client.say(
+        channel,
+        `@${username}, nie masz żadnych wyzwań do zaakceptowania.`,
+      );
+      return;
+    }
+
+    const challenger = getGamblingUser(pending.challenger);
+    const opponent = user!;
+    const amount = pending.amount;
+
+    if (!challenger || !opponent) {
+      client.say(channel, `Pojedynek nieważny – gracz nie istnieje.`);
+      delete pendingDuels[username];
+      return;
+    }
+
+    if (challenger.points < amount || opponent.points < amount) {
+      client.say(
+        channel,
+        `Pojedynek anulowany – jeden z graczy nie ma wystarczających punktów.`,
+      );
+      delete pendingDuels[username];
+      return;
+    }
+
+    const winner = Math.random() < DUEL_CHANCE ? challenger : opponent;
+    const loser = winner === challenger ? opponent : challenger;
+
+    changePoints(winner.username, amount);
+    changePoints(loser.username, -amount);
+
+    updateDuelStats(winner.username, true);
+    updateDuelStats(loser.username, false);
+
+    db.prepare(`UPDATE users SET lastDuel = ? WHERE username = ?`).run(
+      now,
+      challenger.username,
+    );
+
+    client.say(
+      channel,
+      `⚔️ Pojedynek: @${challenger.username} vs @${opponent.username} o ${amount} pkt! ` +
+        `Wygrał(a) ${winner.username}! hazard`,
+    );
+
+    delete pendingDuels[username];
+    return;
+  }
+
+  // --- TOP WOJOWNICY ---
+  if (message === TOPWOJOWNICY) {
+    const users = db
+      .prepare(
+        `SELECT username, wins, losses 
+       FROM users 
+       WHERE wins + losses > 0 
+       ORDER BY wins DESC 
+       LIMIT 5`,
+      )
+      .all() as TopUser[];
+
+    const msg =
+      users.length === 0
+        ? `🛡️ Nikt jeszcze nie walczył w pojedynku.`
+        : `🥇 Top wojownicy: ` +
+          users
+            .map((u, i) => `${i + 1}. ${u.username} (${u.wins}W/${u.losses}L)`)
+            .join(" | ");
+    client.say(channel, msg);
     return;
   }
 };
 
-// Naliczanie odsetek
+// --- ODSETKI ---
 setInterval(() => {
   const db = getGamblingDb();
   const stmt = db.prepare(
-    `UPDATE users SET debt = debt + 50 WHERE debt > 0 AND debt < ?`,
+    `UPDATE users SET debt = debt + 1 WHERE debt > 0 AND debt < ?`,
   );
   const result = stmt.run(MAX_DEBT * 2);
   if (result.changes > 0) {
     console.log("💰 Odsetki naliczone dla", result.changes, "użytkowników.");
   }
 }, INTEREST_INTERVAL);
+
+// --- CZYSZCZENIE NIEPOTWIERDZONYCH POJEDYNKÓW ---
+setInterval(() => {
+  const now = Date.now();
+  for (const [target, data] of Object.entries(pendingDuels)) {
+    if (now - data.timestamp > DUEL_EXPIRATION) {
+      delete pendingDuels[target];
+    }
+  }
+}, 30 * 1000);

@@ -6,6 +6,9 @@ export interface GamblingUser {
   debt: number;
   lastBet: number;
   lastLoan: number;
+  wins: number;
+  losses: number;
+  lastDuel: number;
 }
 
 export const getGamblingUser = (username: string): GamblingUser => {
@@ -45,3 +48,16 @@ export const changeDebt = (username: string, amount: number): number => {
   const result = stmt.get(amount, normalizedUser) as { debt: number };
   return result.debt;
 };
+
+export function updateDuelStats(username: string, didWin: boolean) {
+  const db = getGamblingDb();
+  if (didWin) {
+    db.prepare("UPDATE users SET wins = wins + 1 WHERE username = ?").run(
+      username,
+    );
+  } else {
+    db.prepare("UPDATE users SET losses = losses + 1 WHERE username = ?").run(
+      username,
+    );
+  }
+}
