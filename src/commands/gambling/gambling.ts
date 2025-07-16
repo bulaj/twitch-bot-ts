@@ -8,7 +8,7 @@ import {
 } from "../../database/gambling.manager";
 import { getGamblingDb } from "../../database/connection";
 
-const COOLDOWN = 1 * 1000;
+const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
 const INTEREST_INTERVAL = 60 * 1000;
 const MAX_DEBT = 5000;
