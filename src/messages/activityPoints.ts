@@ -6,8 +6,8 @@ const ACTIVITY_COOLDOWN_MS = 30 * 1000;
 const lastActivity: Map<string, number> = new Map();
 
 const getMessagePoints = (message: string): number => {
-  if (message.length >= 80) return 50;
-  if (message.length >= 40) return 40;
+  if (message.length >= 320) return 50;
+  if (message.length >= 160) return 40;
   if (message.length >= 20) return 30;
   return 10;
 };
