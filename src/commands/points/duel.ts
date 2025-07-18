@@ -5,10 +5,11 @@ import {
   updateDuelStats,
 } from "../../database/points.manager";
 import { getPointsDb } from "../../database/connection";
+import { getDisplayName } from "../../services/displayName.service";
 
 const COOLDOWN_DUEL = 60 * 1000;
 export const DUEL_EXPIRATION = 3 * 60 * 1000;
-const DUEL_CHANCE = 0.5;
+const DUEL_CHANCE = 0.666;
 
 const pendingDuels: {
   [targetUsername: string]: {
@@ -22,12 +23,13 @@ export const handleDuelChallenge = (
   client: tmi.Client,
   channel: string,
   username: string,
+  displayName: string,
   target: string,
   amount: number,
   now: number,
 ) => {
   if (target.toLowerCase() === username) {
-    client.say(channel, `@${username}, nie możesz wyzwać samego siebie.`);
+    client.say(channel, `@${displayName}, nie możesz wyzwać samego siebie.`);
     return;
   }
 
@@ -35,14 +37,17 @@ export const handleDuelChallenge = (
   const opponent = getPointsUser(target.toLowerCase());
 
   if (!opponent) {
-    client.say(channel, `@${username}, nie znaleziono użytkownika ${target}.`);
+    client.say(
+      channel,
+      `@${displayName}, nie znaleziono użytkownika ${target}.`,
+    );
     return;
   }
 
   if (!challenger || challenger.points < amount || opponent.points < amount) {
     client.say(
       channel,
-      `@${username}, jeden z graczy nie ma wystarczająco punktów.`,
+      `@${displayName}, jeden z graczy nie ma wystarczająco punktów.`,
     );
     return;
   }
@@ -53,7 +58,7 @@ export const handleDuelChallenge = (
     );
     client.say(
       channel,
-      `@${username}, poczekaj ${wait}s przed kolejnym pojedynkiem.`,
+      `@${displayName}, poczekaj ${wait}s przed kolejnym pojedynkiem.`,
     );
     return;
   }
@@ -66,7 +71,7 @@ export const handleDuelChallenge = (
 
   client.say(
     channel,
-    `⚔️ @${username} wyzwał(a) @${target} na pojedynek o ${amount} pkt! Aby zaakceptować, wpisz !akceptuj`,
+    `⚔️ @${displayName} wyzwał(a) @${target} na pojedynek o ${amount} pkt! Aby zaakceptować, wpisz !akceptuj. Wyzywający posiada przewagę!`,
   );
 };
 
@@ -74,13 +79,14 @@ export const handleDuelAcceptance = (
   client: tmi.Client,
   channel: string,
   username: string,
+  displayName: string,
   now: number,
 ) => {
   const pending = pendingDuels[username];
   if (!pending) {
     client.say(
       channel,
-      `@${username}, nie masz żadnych wyzwań do zaakceptowania.`,
+      `@${displayName}, nie masz żadnych wyzwań do zaakceptowania.`,
     );
     return;
   }
@@ -121,7 +127,7 @@ export const handleDuelAcceptance = (
 
   client.say(
     channel,
-    `⚔️ Pojedynek: @${challenger.username} vs @${opponent.username} o ${amount} pkt! ` +
+    `⚔️ Pojedynek: @${getDisplayName(challenger)} vs @${getDisplayName(opponent)} o ${amount} pkt! ` +
       `Wygrał(a) ${winner.username}! hazard`,
   );
 

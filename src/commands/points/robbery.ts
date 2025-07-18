@@ -6,6 +6,7 @@ import {
 } from "../../database/points.manager";
 import tmi from "tmi.js";
 import { getPointsDb } from "../../database/connection";
+import { getDisplayName } from "../../services/displayName.service";
 
 const COOLDOWN_ROBBERY = 5 * 60 * 1000; // 5 minut cooldown na napad
 const ROBBERY_CHANCE = 0.333;
@@ -24,14 +25,20 @@ export const handleRobbery = (
   const amount = parseInt(args[2]);
 
   if (!target || isNaN(amount) || amount <= 0) {
-    client.say(channel, `@${userstate.username}, użycie: !napad @nick <kwota>`);
+    client.say(
+      channel,
+      `@${getDisplayName(userstate)}, użycie: !napad @nick <kwota>`,
+    );
     return;
   }
 
-  if (target.toLowerCase() === userstate.username.toLowerCase()) {
-    client.say(channel, `@${userstate.username}, nie możesz napaść na siebie.`);
-    return;
-  }
+  // if (target.toLowerCase() === userstate.username.toLowerCase()) {
+  //   client.say(
+  //     channel,
+  //     `@${getDisplayName(userstate)}, nie możesz napaść na siebie.`,
+  //   );
+  //   return;
+  // }
 
   const db = getPointsDb();
   const victim = getPointsUser(target.toLowerCase());
@@ -39,7 +46,7 @@ export const handleRobbery = (
   if (!victim) {
     client.say(
       channel,
-      `@${userstate.username}, nie znaleziono użytkownika ${target}.`,
+      `@${getDisplayName(userstate)}, nie znaleziono użytkownika ${target}.`,
     );
     return;
   }
@@ -47,7 +54,7 @@ export const handleRobbery = (
   if (user.points < amount) {
     client.say(
       channel,
-      `@${userstate.username}, nie masz tyle punktów, by ryzykować ${amount}.`,
+      `@${getDisplayName(userstate)}, nie masz tyle punktów, by ryzykować ${amount}.`,
     );
     return;
   }
@@ -55,7 +62,7 @@ export const handleRobbery = (
   if (victim.points < amount) {
     client.say(
       channel,
-      `@${userstate.username}, cel ma mniej niż ${amount} punktów.`,
+      `@${getDisplayName(userstate)}, cel ma mniej niż ${amount} punktów.`,
     );
     return;
   }
@@ -66,7 +73,7 @@ export const handleRobbery = (
     );
     client.say(
       channel,
-      `@${userstate.username}, odczekaj ${wait}s przed kolejnym napadem.`,
+      `@${getDisplayName(userstate)}, odczekaj ${wait}s przed kolejnym napadem.`,
     );
     return;
   }
@@ -74,23 +81,23 @@ export const handleRobbery = (
   const success = Math.random() < ROBBERY_CHANCE;
 
   if (success) {
-    changePoints(user.username, amount);
+    changePoints(getDisplayName(user), amount);
     changePoints(victim.username, -amount);
 
     client.say(
       channel,
-      `💥 @${user.username} dokonał udanego napadu na @${victim.username} i zdobył ${amount} punktów!`,
+      `💥 @${getDisplayName(user)} udany napad na @${getDisplayName(victim)}, zdobycz: ${amount} punktów!`,
     );
   } else {
-    changePoints(user.username, -amount);
+    changePoints(getDisplayName(user), -amount);
 
     client.say(
       channel,
-      `❌ @${user.username} nie udało się napad na @${victim.username} i stracił ${amount} punktów!`,
+      `❌ @${getDisplayName(user)} nie udał się napad na @${getDisplayName(victim)}, strata: ${amount} punktów!`,
     );
   }
 
-  updateRobberyStats(user.username, success);
+  updateRobberyStats(getDisplayName(user), success);
 
   db.prepare(`UPDATE users SET lastRobbery = ? WHERE username = ?`).run(
     now,

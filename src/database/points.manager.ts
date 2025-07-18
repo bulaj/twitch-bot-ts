@@ -2,6 +2,7 @@ import { getPointsDb } from "./connection";
 
 export interface PointsUser {
   username: string;
+  displayName?: string;
   points: number;
   debt: number;
   lastBet: number;

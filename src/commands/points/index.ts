@@ -13,6 +13,7 @@ import {
   handleDuelAcceptance,
   handleDuelChallenge,
 } from "./duel";
+import { getDisplayName } from "../../services/displayName.service";
 
 const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
@@ -38,7 +39,7 @@ const TOPROBBERS = "!topnapady";
 
 type TopUser = Pick<
   PointsUser,
-  "username" | "points" | "debt" | "wins" | "losses"
+  "username" | "displayName" | "points" | "debt" | "wins" | "losses"
 >;
 
 const pointsCommands = [
@@ -67,6 +68,7 @@ export const handlePointsCommands = (
 
   const db = getPointsDb();
   const username = userstate.username.toLowerCase();
+  const displayName = getDisplayName(userstate);
   const now = Date.now();
 
   let user = getPointsUser(username);
@@ -94,7 +96,7 @@ export const handlePointsCommands = (
     if (isNaN(amount) || amount <= 0) {
       client.say(
         channel,
-        `@${username}, podaj poprawną liczbę punktów. hazard`,
+        `@${displayName}, podaj poprawną liczbę punktów. hazard`,
       );
       return;
     }
@@ -103,7 +105,7 @@ export const handlePointsCommands = (
       const wait = Math.ceil((COOLDOWN - (now - user.lastBet)) / 1000);
       client.say(
         channel,
-        `@${username}, odczekaj ${wait}s przed kolejnym obstawieniem. hazard`,
+        `@${displayName}, odczekaj ${wait}s przed kolejnym obstawieniem. hazard`,
       );
       return;
     }
@@ -111,7 +113,7 @@ export const handlePointsCommands = (
     if (user.points < amount) {
       client.say(
         channel,
-        `@${username}, masz tylko ${user.points} punktów. hazard`,
+        `@${displayName}, masz tylko ${user.points} punktów. hazard`,
       );
       return;
     }
@@ -128,8 +130,8 @@ export const handlePointsCommands = (
     client.say(
       channel,
       win
-        ? `🎉 @${username} wygrał(a) ${amount} punktów! Masz teraz ${updated}. hazard`
-        : `💥 @${username} przegrał(a) ${amount} punktów... Masz teraz ${updated}. hazard`,
+        ? `🎉 @${displayName} wygrał(a) ${amount} punktów! Masz teraz ${updated}. hazard`
+        : `💥 @${displayName} przegrał(a) ${amount} punktów... Masz teraz ${updated}. hazard`,
     );
     return;
   }
@@ -137,14 +139,17 @@ export const handlePointsCommands = (
   // --- POZYCZKA ---
   if (message === POZYCZKA) {
     if (user.points > 0) {
-      client.say(channel, `@${username}, pożyczki tylko przy zerowym saldzie.`);
+      client.say(
+        channel,
+        `@${displayName}, pożyczki tylko przy zerowym saldzie.`,
+      );
       return;
     }
 
     if (user.debt >= MAX_DEBT) {
       client.say(
         channel,
-        `@${username}, masz już zbyt duży dług (${user.debt}).`,
+        `@${displayName}, masz już zbyt duży dług (${user.debt}).`,
       );
       return;
     }
@@ -153,7 +158,7 @@ export const handlePointsCommands = (
       const wait = Math.ceil((COOLDOWN_LOAN - (now - user.lastLoan)) / 1000);
       client.say(
         channel,
-        `@${username}, poczekaj ${wait}s na kolejną pożyczkę.`,
+        `@${displayName}, poczekaj ${wait}s na kolejną pożyczkę.`,
       );
       return;
     }
@@ -167,7 +172,7 @@ export const handlePointsCommands = (
 
     client.say(
       channel,
-      `💸 @${username}, pożyczka przyznana. Twój dług: ${user.debt + LOAN_AMOUNT}`,
+      `💸 @${displayName}, pożyczka przyznana. Twój dług: ${user.debt + LOAN_AMOUNT}`,
     );
     return;
   }
@@ -176,14 +181,14 @@ export const handlePointsCommands = (
   if (message === SALDO) {
     client.say(
       channel,
-      `@${username}, punkty: ${user.points}, dług: ${user.debt}`,
+      `@${displayName}, punkty: ${user.points}, dług: ${user.debt}`,
     );
     return;
   }
 
   // --- PUNKTY ---
   if (message === PUNKTY) {
-    client.say(channel, `@${username}, masz ${user.points} punktów. hazard`);
+    client.say(channel, `@${displayName}, masz ${user.points} punktów. hazard`);
     return;
   }
 
@@ -210,7 +215,7 @@ export const handlePointsCommands = (
   if (message === TOPBOGACZE) {
     const users = db
       .prepare(
-        `SELECT username, points FROM users WHERE points > 0 ORDER BY points DESC LIMIT 5`,
+        `SELECT username, displayName, points FROM users WHERE points > 0 ORDER BY points DESC LIMIT 5`,
       )
       .all() as TopUser[];
 
@@ -219,7 +224,7 @@ export const handlePointsCommands = (
         ? `😔 Nikt jeszcze nie ma punktów. Czat zbiedniał.`
         : `💰 Top bogacze: ` +
           users
-            .map((u, i) => `${i + 1}. ${u.username}: ${u.points} pkt`)
+            .map((u, i) => `${i + 1}. ${getDisplayName(u)}: ${u.points} pkt`)
             .join(" | ");
     client.say(channel, msg);
     return;
@@ -232,17 +237,25 @@ export const handlePointsCommands = (
     const amount = parseInt(args[2]);
 
     if (!target || isNaN(amount) || amount <= 0) {
-      client.say(channel, `@${username}, użycie: !duel @nick <kwota>`);
+      client.say(channel, `@${displayName}, użycie: !duel @nick <kwota>`);
       return;
     }
 
-    handleDuelChallenge(client, channel, username, target, amount, now);
+    handleDuelChallenge(
+      client,
+      channel,
+      username,
+      displayName,
+      target,
+      amount,
+      now,
+    );
     return;
   }
 
   // --- AKCEPTACJA POJEDYNKU ---
   if (message === AKCEPTUJ) {
-    handleDuelAcceptance(client, channel, username, now);
+    handleDuelAcceptance(client, channel, username, displayName, now);
     return;
   }
 
@@ -250,7 +263,7 @@ export const handlePointsCommands = (
   if (message === TOPWOJOWNICY) {
     const users = db
       .prepare(
-        `SELECT username, wins, losses 
+        `SELECT username, displayName, wins, losses 
        FROM users 
        WHERE wins + losses > 0 
        ORDER BY wins DESC 
@@ -263,7 +276,10 @@ export const handlePointsCommands = (
         ? `🛡️ Nikt jeszcze nie walczył w pojedynku.`
         : `🥇 Top wojownicy: ` +
           users
-            .map((u, i) => `${i + 1}. ${u.username} (${u.wins}W/${u.losses}L)`)
+            .map(
+              (u, i) =>
+                `${i + 1}. ${getDisplayName(u)} (${u.wins}W/${u.losses}L)`,
+            )
             .join(" | ");
     client.say(channel, msg);
     return;
@@ -290,7 +306,7 @@ export const handlePointsCommands = (
     const msg = users
       .map(
         (u, i) =>
-          `${i + 1}. ${u.username}: ${u.successfulRobberies} udanych / ${u.robberies} prób`,
+          `${i + 1}. ${getDisplayName(u)}: ${u.successfulRobberies} udanych / ${u.robberies} prób`,
       )
       .join(" | ");
 
