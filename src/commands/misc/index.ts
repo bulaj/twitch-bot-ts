@@ -1,9 +1,7 @@
 import tmi from "tmi.js";
 import { SimpleCommand } from "./command.interface";
 import { PingCommand } from "./ping";
-import { WeatherCommand } from "../weather/weather";
 import { RepCommand } from "../reputation/reputation";
-import { SongRequestCommand } from "../music/songrequest";
 import { logger } from "../../services/logger.service";
 import { NootCommand } from "./noot";
 import { ZerkCommand } from "./zerk";
@@ -16,9 +14,7 @@ const commands: SimpleCommand[] = [
   ZerkCommand,
   ChlebCommand,
   NootCommand,
-  WeatherCommand,
   RepCommand,
-  SongRequestCommand,
   EightBallCommand,
   WinCommand,
 ];
