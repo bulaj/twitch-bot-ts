@@ -8,11 +8,15 @@ import tmi from "tmi.js";
 const ACTIVITY_COOLDOWN_MS = 30 * 1000;
 const lastActivity: Map<string, number> = new Map();
 
+const plusMinusNine = (n: number): number => {
+  const offset = Math.floor(Math.random() * 19) - 9; // losowa liczba z przedziału [-9, 9]
+  return n + offset;
+};
 const getMessagePoints = (message: string): number => {
-  if (message.length >= 320) return 50;
-  if (message.length >= 160) return 40;
-  if (message.length >= 20) return 30;
-  return 10;
+  if (message.length >= 320) return plusMinusNine(100);
+  if (message.length >= 160) return plusMinusNine(50);
+  if (message.length >= 20) return plusMinusNine(30);
+  return plusMinusNine(10);
 };
 
 const isHappyHour = (): boolean => {
