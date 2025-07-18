@@ -5,6 +5,7 @@ import {
   changePoints,
   getPointsUser,
   PointsUser,
+  repayLoan,
 } from "../../database/points.manager";
 import { getPointsDb } from "../../database/connection";
 import { handleRobbery } from "./robbery";
@@ -36,6 +37,7 @@ const AKCEPTUJ = "!akceptuj";
 const TOPWOJOWNICY = "!topwojownicy";
 const ROBBERY = "!napad";
 const TOPROBBERS = "!topnapady";
+const SPLAC = "!splac";
 
 type TopUser = Pick<
   PointsUser,
@@ -55,6 +57,7 @@ const pointsCommands = [
   TOPWOJOWNICY,
   ROBBERY,
   TOPROBBERS,
+  SPLAC,
 ];
 
 export const handlePointsCommands = (
@@ -174,6 +177,36 @@ export const handlePointsCommands = (
       channel,
       `💸 @${displayName}, pożyczka przyznana. Twój dług: ${user.debt + LOAN_AMOUNT}`,
     );
+    return;
+  }
+
+  // --- SPLATA ---
+  if (message.startsWith(SPLAC)) {
+    const args = message.trim().split(" ");
+    const amountArg = args[1];
+    const amount =
+      amountArg?.toLowerCase() === "all" ? -1 : parseInt(amountArg);
+
+    if (amountArg && isNaN(amount) && amount !== -1) {
+      client.say(channel, `@${displayName}, podaj liczbę lub 'all'.`);
+      return;
+    }
+
+    const repaid = repayLoan(username, amount ?? -1);
+
+    if (repaid > 0) {
+      client.say(
+        channel,
+        `@${displayName}, spłacono ${repaid} punktów długu. Dług: ${
+          getPointsUser(username)!.debt
+        }, punkty: ${getPointsUser(username)!.points}`,
+      );
+    } else {
+      client.say(
+        channel,
+        `@${displayName}, nie masz długu albo za mało punktów na spłatę.`,
+      );
+    }
     return;
   }
 

@@ -111,3 +111,22 @@ export const updateRobberyStats = (
     `UPDATE users SET robberies = ?, successfulRobberies = ? WHERE username = ?`,
   ).run(newRobberies, newSuccesses, username);
 };
+
+export const repayLoan = (username: string, amount: number): number => {
+  const db = getPointsDb();
+  const user = getPointsUser(username);
+  if (!user) return 0;
+
+  const repayAmount =
+    amount === -1
+      ? Math.min(user.points, user.debt)
+      : Math.min(amount, user.points, user.debt);
+
+  if (repayAmount <= 0) return 0;
+
+  db.prepare(
+    `UPDATE users SET points = points - ?, debt = debt - ? WHERE username = ?`,
+  ).run(repayAmount, repayAmount, username);
+
+  return repayAmount;
+};
