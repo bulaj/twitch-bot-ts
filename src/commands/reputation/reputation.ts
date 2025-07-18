@@ -2,10 +2,15 @@ import { SimpleCommand } from "../misc/command.interface";
 import {
   changeReputation,
   getReputationUser,
+  getTopReputationUsers,
 } from "../../database/reputation.manager";
+import {
+  getRemainingCooldown,
+  isOnCooldown,
+  setCooldown,
+} from "../../services/cooldown.service";
 
 const REP_COOLDOWN = 60 * 1000; // 60 sekund
-const repCooldowns: Record<string, number> = {}; // username → timestamp
 export const RepCommand: SimpleCommand = {
   name: "rep",
   description:
@@ -32,15 +37,30 @@ export const RepCommand: SimpleCommand = {
       return;
     }
 
+    if (action === "rep" && args[0]?.toLowerCase() === "top") {
+      // Pobierz top 5 i wyświetl
+      const topUsers = getTopReputationUsers(5);
+      if (topUsers.length === 0) {
+        client.say(channel, `Brak danych o reputacji użytkowników.`);
+        return;
+      }
+
+      const leaderboard = topUsers
+        .map((u, i) => `${i + 1}. ${u.username} (${u.reputation} pkt)`)
+        .join(" | ");
+
+      client.say(channel, `Top 5 użytkowników wg reputacji: ${leaderboard}`);
+      return;
+    }
+
     switch (action) {
       case "rep+":
       case "rep-": {
-        const now = Date.now();
-        const key = userstate.username!.toLowerCase();
-        const lastUsed = repCooldowns[key] || 0;
-
-        if (now - lastUsed < REP_COOLDOWN) {
-          const wait = Math.ceil((REP_COOLDOWN - (now - lastUsed)) / 1000);
+        if (isOnCooldown(userstate.username, "rep", REP_COOLDOWN)) {
+          const wait = Math.ceil(
+            getRemainingCooldown(userstate.username, "rep", REP_COOLDOWN) /
+              1000,
+          );
           client.say(
             channel,
             `@${userstate.username}, poczekaj ${wait}s przed kolejną zmianą reputacji.`,
@@ -48,8 +68,7 @@ export const RepCommand: SimpleCommand = {
           return;
         }
 
-        // zaktualizuj cooldown
-        repCooldowns[key] = now;
+        setCooldown(userstate.username, "rep");
 
         const change = action === "rep+" ? 1 : -1;
         const newRep = changeReputation(targetUser, change);

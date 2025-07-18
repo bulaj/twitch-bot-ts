@@ -26,3 +26,12 @@ export const changeReputation = (username: string, amount: number): number => {
   const result = stmt.get(amount, normalizedUser) as { reputation: number };
   return result.reputation;
 };
+
+export const getTopReputationUsers = (limit: number = 5): ReputationUser[] => {
+  const db = getReputationDb();
+  const stmt = db.prepare(
+    "SELECT username, reputation FROM users WHERE username != 'xd' ORDER BY reputation DESC LIMIT ?",
+  );
+  const rows = stmt.all(limit) as ReputationUser[];
+  return rows;
+};
