@@ -32,13 +32,13 @@ export const handleRobbery = (
     return;
   }
 
-  // if (target.toLowerCase() === userstate.username.toLowerCase()) {
-  //   client.say(
-  //     channel,
-  //     `@${getDisplayName(userstate)}, nie możesz napaść na siebie.`,
-  //   );
-  //   return;
-  // }
+  if (target.toLowerCase() === userstate.username.toLowerCase()) {
+    client.say(
+      channel,
+      `@${getDisplayName(userstate)}, nie możesz napaść na siebie.`,
+    );
+    return;
+  }
 
   const db = getPointsDb();
   const victim = getPointsUser(target.toLowerCase());

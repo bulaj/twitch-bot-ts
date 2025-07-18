@@ -47,7 +47,7 @@ export const handleDuelChallenge = (
   if (!challenger || challenger.points < amount || opponent.points < amount) {
     client.say(
       channel,
-      `@${displayName}, jeden z graczy nie ma wystarczająco punktów.`,
+      `@${displayName}, jeden z graczy nie ma wystarczająco dużo punktów.`,
     );
     return;
   }
@@ -127,8 +127,8 @@ export const handleDuelAcceptance = (
 
   client.say(
     channel,
-    `⚔️ Pojedynek: @${getDisplayName(challenger)} vs @${getDisplayName(opponent)} o ${amount} pkt! ` +
-      `Wygrał(a) ${winner.username}! hazard`,
+    `⚔️ Pojedynek: 🤺@${getDisplayName(challenger)} vs 🤺@${getDisplayName(opponent)} o ${amount} pkt! ` +
+      `Wygrał(a) ${winner.username}! 🍾`,
   );
 
   delete pendingDuels[username];
