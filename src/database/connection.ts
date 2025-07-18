@@ -29,6 +29,7 @@ const createGamblingDatabase = () => {
   const createTable = `
     CREATE TABLE IF NOT EXISTS users (
       username TEXT PRIMARY KEY,
+      displayName TEXT DEFAULT null,
       points INTEGER DEFAULT ${GAMBLING_START_POINTS},
       debt INTEGER DEFAULT 0,
       lastBet INTEGER DEFAULT 0,

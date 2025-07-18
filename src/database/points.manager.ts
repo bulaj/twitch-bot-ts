@@ -36,6 +36,30 @@ export const changePoints = (username: string, amount: number): number => {
   return result.points;
 };
 
+export const changeActivityPoints = (
+  username: string,
+  displayName: string,
+  amount: number,
+): void => {
+  const db = getPointsDb();
+
+  // Dodaj usera jeśli nie istnieje
+  db.prepare(
+    `
+    INSERT INTO users (username, displayName, points)
+    VALUES (?, ?, ?)
+    ON CONFLICT(username) DO UPDATE SET displayName = excluded.displayName
+  `,
+  ).run(username.toLowerCase(), displayName, amount);
+
+  // Dodaj punkty (jeśli user już był, to tylko update)
+  db.prepare(
+    `
+    UPDATE users SET points = points + ? WHERE username = ?
+  `,
+  ).run(amount, username.toLowerCase());
+};
+
 export const changeDebt = (username: string, amount: number): number => {
   const db = getPointsDb();
   const normalizedUser = username.toLowerCase();

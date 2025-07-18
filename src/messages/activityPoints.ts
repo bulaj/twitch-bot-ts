@@ -1,4 +1,7 @@
-import { changePoints, getPointsUser } from "../database/points.manager";
+import {
+  changeActivityPoints,
+  getPointsUser,
+} from "../database/points.manager";
 import { logger } from "../services/logger.service";
 import tmi from "tmi.js";
 
@@ -24,6 +27,7 @@ export const handleActivityPoints = (
   if (!userstate.username) return;
 
   const username = userstate.username.toLowerCase();
+  const displayName = userstate["display-name"] || username;
   const now = Date.now();
   const lastUsed = lastActivity.get(username);
 
@@ -40,7 +44,7 @@ export const handleActivityPoints = (
 
   const total = (points + bonus) * multiplier;
 
-  changePoints(username, total);
+  changeActivityPoints(username, displayName, total);
   lastActivity.set(username, now);
 
   logger.info(
