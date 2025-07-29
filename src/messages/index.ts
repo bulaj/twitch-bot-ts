@@ -8,6 +8,6 @@ export const handleAnyMessage = (
   message: string,
 ) => {
   if (!userstate.username) return;
-  logger.info(channel, userstate.username, message);
+  logger.log(channel, userstate.username, message);
   handleActivityPoints(channel, userstate, message);
 };
