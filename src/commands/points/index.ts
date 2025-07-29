@@ -141,10 +141,10 @@ export const handlePointsCommands = (
 
   // --- POZYCZKA ---
   if (message === POZYCZKA) {
-    if (user.points > 0) {
+    if (user.points > 500) {
       client.say(
         channel,
-        `@${displayName}, pożyczki tylko przy zerowym saldzie.`,
+        `@${displayName}, pożyczki tylko przy niskim saldzie.`,
       );
       return;
     }

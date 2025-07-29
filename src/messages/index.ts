@@ -1,5 +1,6 @@
 import tmi from "tmi.js";
 import { handleActivityPoints } from "./activityPoints";
+import { logger } from "../services/logger.service";
 
 export const handleAnyMessage = (
   channel: string,
@@ -7,6 +8,6 @@ export const handleAnyMessage = (
   message: string,
 ) => {
   if (!userstate.username) return;
-
+  logger.info(channel, userstate.username, message);
   handleActivityPoints(channel, userstate, message);
 };
