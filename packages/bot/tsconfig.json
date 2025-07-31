@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 20",
+
+  "compilerOptions": {
+    // --- Podstawowe opcje ---
+    "target": "ES2022",
+    "lib": ["es2022"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+
+    // --- Opcje ścieżek i importów ---
+    "baseUrl": "./src",
+    "paths": {
+      "@twitch-bot/shared": ["../../shared/src"]
+    },
+
+    // --- Jakość kodu i ścisłość ---
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+
+    // --- Opcje budowania ---
+    "outDir": "./dist",
+    "declaration": true,
+    "sourceMap": true,
+
+    // --- Zaawansowane ---
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+
+  // --- Co ma być kompilowane ---
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

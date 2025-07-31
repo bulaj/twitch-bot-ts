@@ -1,37 +1,21 @@
 {
   "name": "twitch-bot-ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "private": true,
+  "author": "bulajj",
   "description": "Twitch Chat Bot in TypeScript",
-  "main": "dist/bot.js",
   "scripts": {
-    "start": "node dist/bot.js",
-    "build": "tsc",
-    "dev": "ts-node-dev --respawn --transpile-only src/bot.ts",
-    "test": "jest"
+    "dev:bot": "pnpm --filter bot dev",
+    "dev:dashboard": "pnpm --filter dashboard dev",
+    "dev": "pnpm dev:bot & pnpm dev:api & pnpm dev:dashboard"
   },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "packageManager": "pnpm@9.1.0",
   "keywords": [
     "twitch",
     "bot",
     "typescript"
-  ],
-  "author": "bulajj",
-  "license": "ISC",
-  "dependencies": {
-    "better-sqlite3": "^12.2.0",
-    "dotenv": "^17.2.0",
-    "openmeteo": "^1.2.0",
-    "prettier": "^3.6.2",
-    "tmi.js": "^1.8.5",
-    "typescript": "^5.8.3",
-    "ytdl-core": "^4.11.5"
-  },
-  "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.13",
-    "@types/tmi.js": "^1.8.6",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.4.0",
-    "ts-node-dev": "^2.0.0"
-  }
+  ]
 }

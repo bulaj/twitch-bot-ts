@@ -1,6 +1,6 @@
 backup
 node_modules
-.env
+packages/bot/.env
 db/*
 dist
 coverage
