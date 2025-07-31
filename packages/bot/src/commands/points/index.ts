@@ -7,15 +7,26 @@ import {
   getPointsUser,
   incrementBetsCount,
   PointsUser,
-  repayLoan,
+  repayLoan
 } from "@twitch-bot-ts/shared";
 import { handleRobbery } from "./robbery";
-import {
-  cleanupExpiredDuels,
-  handleDuelAcceptance,
-  handleDuelChallenge,
-} from "./duel";
+import { cleanupExpiredDuels, handleDuelAcceptance, handleDuelChallenge } from "./duel";
 import { getDisplayName } from "../../services/displayName.service";
+import {
+  AKCEPTUJ,
+  DLUGI,
+  DUEL,
+  OBSTAW,
+  POZYCZKA,
+  PUNKTY,
+  ROBBERY,
+  SALDO,
+  SPLAC,
+  TOPBOGACZE,
+  TOPDLUZNICY,
+  TOPROBBERS,
+  TOPWOJOWNICY
+} from "./constants";
 
 const COOLDOWN = 60 * 1000;
 const COOLDOWN_LOAN = 10 * 60 * 1000;
@@ -25,20 +36,6 @@ const LOAN_AMOUNT = 1000;
 const GAMBLING_CHANCE = 0.5;
 
 export const GAMBLING_START_POINTS = 1000;
-
-const OBSTAW = "!obstaw";
-const POZYCZKA = "!pozyczka";
-const SALDO = "!saldo";
-const PUNKTY = "!punkty";
-const TOPDLUZNICY = "!topdluznicy";
-const DLUGI = "!dlugi";
-const TOPBOGACZE = "!topbogacze";
-const DUEL = "!duel";
-const AKCEPTUJ = "!akceptuj";
-const TOPWOJOWNICY = "!topwojownicy";
-const ROBBERY = "!napad";
-const TOPROBBERS = "!topnapady";
-const SPLAC = "!splac";
 
 type TopUser = Pick<
   PointsUser,

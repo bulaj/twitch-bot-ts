@@ -1,0 +1,13 @@
+export const OBSTAW = "!obstaw";
+export const POZYCZKA = "!pozyczka";
+export const SALDO = "!saldo";
+export const PUNKTY = "!punkty";
+export const TOPDLUZNICY = "!topdluznicy";
+export const DLUGI = "!dlugi";
+export const TOPBOGACZE = "!topbogacze";
+export const DUEL = "!duel";
+export const AKCEPTUJ = "!akceptuj";
+export const TOPWOJOWNICY = "!topwojownicy";
+export const ROBBERY = "!napad";
+export const TOPROBBERS = "!topnapady";
+export const SPLAC = "!splac";
