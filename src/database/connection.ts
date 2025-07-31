@@ -39,6 +39,7 @@ const createGamblingDatabase = () => {
       losses INTEGER DEFAULT 0,
       lastRobbery INTEGER DEFAULT 0,
       robberies INTEGER DEFAULT 0,
+      betsCount INTEGER DEFAULT 0,
       successfulRobberies INTEGER DEFAULT 0
     );
   `;

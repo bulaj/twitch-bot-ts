@@ -4,6 +4,7 @@ import {
   changeDebt,
   changePoints,
   getPointsUser,
+  incrementBetsCount,
   PointsUser,
   repayLoan,
 } from "../../database/points.manager";
@@ -136,6 +137,8 @@ export const handlePointsCommands = (
         ? `🎉 @${displayName} wygrał(a) ${amount} punktów! Masz teraz ${updated}. hazard`
         : `💥 @${displayName} przegrał(a) ${amount} punktów... Masz teraz ${updated}. hazard`,
     );
+    incrementBetsCount(username);
+
     return;
   }
 

@@ -13,6 +13,7 @@ export interface PointsUser {
   lastRobbery: number;
   robberies: number;
   successfulRobberies: number;
+  betsCount?: number;
 }
 
 export const getPointsUser = (username: string): PointsUser => {
@@ -129,4 +130,11 @@ export const repayLoan = (username: string, amount: number): number => {
   ).run(repayAmount, repayAmount, username);
 
   return repayAmount;
+};
+
+export const incrementBetsCount = (username: string): void => {
+  const db = getPointsDb();
+  db.prepare(
+    `UPDATE users SET betsCount = COALESCE(betsCount, 0) + 1 WHERE username = ?`,
+  ).run(username.toLowerCase());
 };

@@ -7,3 +7,4 @@ coverage
 points.json
 copy.json
 db.zip
+.DS_Store
