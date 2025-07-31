@@ -3,12 +3,12 @@ import { logger } from "../../services/logger.service";
 import {
   changeDebt,
   changePoints,
+  getPointsDb,
   getPointsUser,
   incrementBetsCount,
   PointsUser,
   repayLoan,
-} from "../../database/points.manager";
-import { getPointsDb } from "../../database/connection";
+} from "@twitch-bot-ts/shared";
 import { handleRobbery } from "./robbery";
 import {
   cleanupExpiredDuels,

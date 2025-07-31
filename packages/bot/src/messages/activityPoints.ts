@@ -1,7 +1,4 @@
-import {
-  changeActivityPoints,
-  getPointsUser,
-} from "../database/points.manager";
+import { changeActivityPoints, getPointsUser } from "@twitch-bot-ts/shared";
 import { logger } from "../services/logger.service";
 import tmi from "tmi.js";
 

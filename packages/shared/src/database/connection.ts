@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
-import {logger} from "../services/logger.service";
-import {GAMBLING_START_POINTS} from "../commands/points";
+import {logger} from "../../../bot/src/services/logger.service";
+import {GAMBLING_START_POINTS} from "../../../bot/src/commands/points";
 
 let reputationDatabase: Database.Database;
 let gamblingDatabase: Database.Database;

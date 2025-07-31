@@ -1,9 +1,5 @@
-import { getReputationDb } from "./connection";
-
-export interface ReputationUser {
-  username: string;
-  reputation: number;
-}
+import {getReputationDb} from "./connection";
+import {ReputationUser} from "./types";
 
 export const getReputationUser = (username: string): ReputationUser => {
   const db = getReputationDb();

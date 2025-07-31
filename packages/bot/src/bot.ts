@@ -1,6 +1,6 @@
 import tmi from "tmi.js";
 import { config } from "./config";
-import { initDb } from "./database/connection";
+import { initDb } from "@twitch-bot-ts/shared";
 import { logger } from "./services/logger.service";
 import { handleSimpleCommand } from "./commands/misc";
 import { handlePointsCommands } from "./commands/points";

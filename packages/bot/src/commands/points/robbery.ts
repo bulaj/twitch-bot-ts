@@ -1,11 +1,11 @@
 import {
   changePoints,
+  getPointsDb,
   getPointsUser,
   PointsUser,
   updateRobberyStats,
-} from "../../database/points.manager";
+} from "@twitch-bot-ts/shared";
 import tmi from "tmi.js";
-import { getPointsDb } from "../../database/connection";
 import { getDisplayName } from "../../services/displayName.service";
 
 const COOLDOWN_ROBBERY = 5 * 60 * 1000; // 5 minut cooldown na napad

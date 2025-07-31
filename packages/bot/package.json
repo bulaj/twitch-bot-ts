@@ -1,5 +1,5 @@
 {
-  "name": "bot",
+  "name": "@twitch-bot-ts/bot",
   "version": "0.0.1",
   "description": "Twitch Chat Bot",
   "main": "dist/bot.js",
@@ -12,7 +12,6 @@
   "author": "bulajj",
   "license": "ISC",
   "dependencies": {
-    "better-sqlite3": "^12.2.0",
     "dotenv": "^17.2.0",
     "openmeteo": "^1.2.0",
     "prettier": "^3.6.2",
@@ -20,7 +19,6 @@
     "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.13",
     "@types/tmi.js": "^1.8.6",

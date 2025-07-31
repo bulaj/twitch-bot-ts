@@ -3,7 +3,7 @@ import {
   changeReputation,
   getReputationUser,
   getTopReputationUsers,
-} from "../../database/reputation.manager";
+} from "@twitch-bot-ts/shared";
 import {
   getRemainingCooldown,
   isOnCooldown,

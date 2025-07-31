@@ -1,10 +1,10 @@
 import tmi from "tmi.js";
 import {
   changePoints,
+  getPointsDb,
   getPointsUser,
   updateDuelStats,
-} from "../../database/points.manager";
-import { getPointsDb } from "../../database/connection";
+} from "@twitch-bot-ts/shared";
 import { getDisplayName } from "../../services/displayName.service";
 
 const COOLDOWN_DUEL = 60 * 1000;
