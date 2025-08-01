@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
-import {logger} from "../../../bot/src/services/logger.service";
-import {GAMBLING_START_POINTS} from "../../../bot/src/commands/points";
+import { logger } from "../../../bot/src/services/logger.service";
+import { GAMBLING_START_POINTS } from "../../../bot/src/commands/points";
 
 let reputationDatabase: Database.Database;
 let gamblingDatabase: Database.Database;
@@ -23,7 +23,7 @@ const createReputationDatabase = () => {
   logger.info("Reputation database initialized and table created.");
 };
 
-const createGamblingDatabase = () => {
+export const createGamblingDatabase = () => {
   gamblingDatabase = new Database("../../db/points.db");
   gamblingDatabase.pragma("journal_mode = WAL");
   const createTable = `
