@@ -23,3 +23,43 @@ body {
 .roulette-spinner {
   animation: spin-roulette 5s linear infinite;
 }
+
+/* Upewnij się, że masz te definicje na końcu pliku */
+
+@keyframes spin-roulette {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ta klasa będzie aplikować animację */
+.roulette-spinner {
+  animation: spin-roulette 5s linear infinite;
+}
+
+/* Pozostałe animacje (gradient-border, pulse-glow itd.) też powinny tu być */
+@keyframes rotate-glow {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 50%;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--angle),
+    #ff00ff, #00ffff, #ffeb3b, #ff00ff
+  );
+  animation: rotate-glow 4s linear infinite;
+  display: inline-block;
+}
+
+@keyframes pulse-glow {
+  0% { opacity: 0.6; transform: scale(0.95); }
+  70% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(0.95); }
+}
