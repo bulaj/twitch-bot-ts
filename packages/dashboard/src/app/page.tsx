@@ -72,6 +72,7 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
       sx={{ mb: 6 }}
     >
       {topThree.map((user, index) => (
+        // @ts-ignore
         <Grid
           item
           xs={12}

@@ -3,6 +3,9 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 
 function RouletteWheel() {
+  // --- ZMIANA: Definiujemy precyzję ---
+  const precision = 5; // 5 miejsc po przecinku to więcej niż wystarczająco dla SVG
+
   return (
     <Box
       className="roulette-spinner"
@@ -20,13 +23,27 @@ function RouletteWheel() {
           stroke="#ffd700"
           strokeWidth="4"
         />
-        {Array.from({ length: 18 }).map((_, i) => (
-          <path
-            key={i}
-            d={`M 50 50 L ${50 + 48 * Math.cos((i * 20 * Math.PI) / 180)} ${50 + 48 * Math.sin((i * 20 * Math.PI) / 180)} A 48 48 0 0 1 ${50 + 48 * Math.cos(((i + 1) * 20 * Math.PI) / 180)} ${50 + 48 * Math.sin(((i + 1) * 20 * Math.PI) / 180)} Z`}
-            fill={i % 2 === 0 ? "#b71c1c" : "#1a1a1a"}
-          />
-        ))}
+
+        {Array.from({ length: 18 }).map((_, i) => {
+          // --- ZMIANA: Zaokrąglamy wyniki obliczeń ---
+          const startAngle = (i * 20 * Math.PI) / 180;
+          const endAngle = ((i + 1) * 20 * Math.PI) / 180;
+
+          const startX = (50 + 48 * Math.cos(startAngle)).toFixed(precision);
+          const startY = (50 + 48 * Math.sin(startAngle)).toFixed(precision);
+          const endX = (50 + 48 * Math.cos(endAngle)).toFixed(precision);
+          const endY = (50 + 48 * Math.sin(endAngle)).toFixed(precision);
+
+          return (
+            <path
+              key={i}
+              // Używamy zaokrąglonych wartości do zbudowania atrybutu 'd'
+              d={`M 50 50 L ${startX} ${startY} A 48 48 0 0 1 ${endX} ${endY} Z`}
+              fill={i % 2 === 0 ? "#b71c1c" : "#1a1a1a"}
+            />
+          );
+        })}
+
         <circle cx="50" cy="50" r="15" fill="#ffd700" />
         <circle
           cx="50"
