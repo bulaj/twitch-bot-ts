@@ -1,7 +1,7 @@
 import {
   changePoints,
-  getPointsDb,
   getPointsUser,
+  pointsDb,
   PointsUser,
   updateRobberyStats,
 } from "@twitch-bot-ts/shared";
@@ -40,7 +40,7 @@ export const handleRobbery = (
     return;
   }
 
-  const db = getPointsDb();
+  const db = pointsDb;
   const victim = getPointsUser(target.toLowerCase());
 
   if (!victim) {

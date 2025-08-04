@@ -1,4 +1,4 @@
-import { getPointsDbNew, PointsUser } from "@twitch-bot-ts/shared";
+import { pointsDb, PointsUser } from "@twitch-bot-ts/shared";
 import {
   Avatar,
   Box,
@@ -47,12 +47,8 @@ const ALLOWED_ORDER_BY_COLUMNS = [
   "debt",
 ];
 
-// =============================================================================
-// Komponent Podium (bez zmian, jest "głupi" - tylko wyświetla dane)
-// =============================================================================
 function Podium({ topThree }: { topThree: PointsUser[] }) {
   if (topThree.length === 0) return null;
-  // ... (cały kod komponentu Podium pozostaje bez zmian)
   const podiumStyles = [
     {
       order: { xs: 1, md: 2 },
@@ -72,15 +68,7 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
       sx={{ mb: 6 }}
     >
       {topThree.map((user, index) => (
-        // @ts-ignore
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          md={3}
-          key={user.username}
-          sx={{ order: podiumStyles[index].order }}
-        >
+        <Grid key={user.username} sx={{ order: podiumStyles[index].order }}>
           <Box
             sx={{
               position: "relative",
@@ -102,7 +90,7 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
                 bottom: 0,
                 borderRadius: "12px",
                 background: `radial-gradient(circle, ${podiumStyles[index].glowColor} 0%, transparent 70%)`,
-                animation: `pulse-glow ${2 + index * 0.2}s ease-in-out infinite`,
+                animation: `pulse-glow ${1 + index * 0.2}s ease-in-out infinite`,
                 zIndex: -1,
                 filter: "blur(20px)",
               }}
@@ -155,19 +143,14 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
   );
 }
 
-// =============================================================================
-// Główny Komponent Strony (z całą logiką wewnątrz)
-// =============================================================================
 export default async function HomePage({
   searchParams,
 }: {
   searchParams: { orderBy?: string; order?: string };
 }) {
-  // --- KROK 1: "Rozpakuj" searchParams na samym początku i tylko tutaj. ---
   const orderBy = searchParams.orderBy || "points";
   const order = searchParams.order || "desc";
 
-  // --- KROK 2: Logika pobierania danych jest teraz wewnątrz komponentu. ---
   const safeOrderBy = ALLOWED_ORDER_BY_COLUMNS.includes(orderBy)
     ? orderBy
     : "points";
@@ -176,7 +159,7 @@ export default async function HomePage({
     : "DESC";
   let users: PointsUser[] = [];
   try {
-    const db = getPointsDbNew();
+    const db = pointsDb;
     const query = `SELECT * FROM users WHERE points > 0 OR debt > 0 ORDER BY ${safeOrderBy} ${safeOrder} LIMIT 50`;
     users = db.prepare(query).all() as PointsUser[];
   } catch (error) {
@@ -220,7 +203,7 @@ export default async function HomePage({
               "@keyframes textGlow": textGlow,
               fontWeight: "bold",
               mb: 4,
-              animation: "textGlow 2s ease-in-out infinite alternate",
+              animation: "textGlow 0.1s ease-in-out infinite alternate",
             }}
           >
             PODZIEMNY KRĄG HAZARDU

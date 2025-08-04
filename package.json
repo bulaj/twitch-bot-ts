@@ -7,7 +7,8 @@
   "scripts": {
     "dev:bot": "pnpm --filter bot dev",
     "dev:dashboard": "pnpm --filter dashboard dev",
-    "dev": "pnpm dev:bot & pnpm dev:dashboard"
+    "dev": "pnpm dev:bot & pnpm dev:dashboard",
+    "db:init": "pnpm --filter @twitch-bot-ts/shared db:init"
   },
   "devDependencies": {
     "typescript": "^5.9.2",

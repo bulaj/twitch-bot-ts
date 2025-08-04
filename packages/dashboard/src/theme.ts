@@ -12,6 +12,9 @@ const theme = createTheme({
       paper: "#1e1e1e", // Tło dla "papierowych" elementów
     },
   },
+  typography: {
+    fontFamily: "var(--font-bruno-ace), sans-serif",
+  },
 });
 
 export default theme;

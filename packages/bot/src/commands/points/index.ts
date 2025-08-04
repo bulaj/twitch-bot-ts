@@ -3,9 +3,9 @@ import { logger } from "../../services/logger.service";
 import {
   changeDebt,
   changePoints,
-  getPointsDb,
   getPointsUser,
   incrementBetsCount,
+  pointsDb,
   PointsUser,
   repayLoan,
 } from "@twitch-bot-ts/shared";
@@ -71,7 +71,7 @@ export const handlePointsCommands = (
   if (!userstate.username) return;
   if (!pointsCommands.some((cmd) => message.startsWith(cmd))) return;
 
-  const db = getPointsDb();
+  const db = pointsDb;
   const username = userstate.username.toLowerCase();
   const displayName = getDisplayName(userstate);
   const now = Date.now();
@@ -354,7 +354,7 @@ export const handlePointsCommands = (
 
 // --- ODSETKI ---
 setInterval(() => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const stmt = db.prepare(
     `UPDATE users SET debt = debt + 1 WHERE debt > 0 AND debt < ?`,
   );

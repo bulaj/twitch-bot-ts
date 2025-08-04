@@ -3,7 +3,6 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 
 function RouletteWheel() {
-  // --- ZMIANA: Definiujemy precyzję ---
   const precision = 5; // 5 miejsc po przecinku to więcej niż wystarczająco dla SVG
 
   return (
@@ -25,7 +24,6 @@ function RouletteWheel() {
         />
 
         {Array.from({ length: 18 }).map((_, i) => {
-          // --- ZMIANA: Zaokrąglamy wyniki obliczeń ---
           const startAngle = (i * 20 * Math.PI) / 180;
           const endAngle = ((i + 1) * 20 * Math.PI) / 180;
 
@@ -37,7 +35,6 @@ function RouletteWheel() {
           return (
             <path
               key={i}
-              // Używamy zaokrąglonych wartości do zbudowania atrybutu 'd'
               d={`M 50 50 L ${startX} ${startY} A 48 48 0 0 1 ${endX} ${endY} Z`}
               fill={i % 2 === 0 ? "#b71c1c" : "#1a1a1a"}
             />

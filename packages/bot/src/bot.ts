@@ -1,12 +1,11 @@
 import tmi from "tmi.js";
 import { config } from "./config";
-import { initDb } from "@twitch-bot-ts/shared";
 import { logger } from "./services/logger.service";
 import { handleSimpleCommand } from "./commands/misc";
 import { handlePointsCommands } from "./commands/points";
 import { handleAnyMessage } from "./messages";
 
-initDb();
+// initDb();
 
 const options: tmi.Options = {
   identity: {

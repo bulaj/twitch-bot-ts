@@ -1,4 +1,3 @@
-// Ten komponent musi być kliencki, ponieważ zarządza motywem za pomocą kontekstu
 "use client";
 
 import { CssBaseline, ThemeProvider as MUIThemeProvider } from "@mui/material";
@@ -11,7 +10,6 @@ export default function ThemeProvider({
 }) {
   return (
     <MUIThemeProvider theme={theme}>
-      {/* CssBaseline resetuje domyślne style przeglądarki i stosuje tło z motywu */}
       <CssBaseline />
       {children}
     </MUIThemeProvider>

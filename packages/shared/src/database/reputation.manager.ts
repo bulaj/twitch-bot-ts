@@ -1,14 +1,14 @@
-import {getReputationDb} from "./connection";
-import {ReputationUser} from "./types";
+import { ReputationUser } from "./types";
+import { reputationDb } from "./db";
 
 export const getReputationUser = (username: string): ReputationUser => {
-  const db = getReputationDb();
+  const db = reputationDb;
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
   return stmt.get(username.toLowerCase()) as ReputationUser;
 };
 
 export const changeReputation = (username: string, amount: number): number => {
-  const db = getReputationDb();
+  const db = reputationDb;
   const normalizedUser = username.toLowerCase();
 
   const user = getReputationUser(normalizedUser);
@@ -24,7 +24,7 @@ export const changeReputation = (username: string, amount: number): number => {
 };
 
 export const getTopReputationUsers = (limit: number = 5): ReputationUser[] => {
-  const db = getReputationDb();
+  const db = reputationDb;
   const stmt = db.prepare(
     "SELECT username, reputation FROM users WHERE username != 'xd' ORDER BY reputation DESC LIMIT ?",
   );

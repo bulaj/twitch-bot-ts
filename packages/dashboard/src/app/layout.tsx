@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { Orbitron } from "next/font/google";
+import { Bruno_Ace_SC } from "next/font/google";
 import ThemeProvider from "../components/ThemeProvider";
 import "./globals.css";
+import React from "react";
 
-const orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "700"] });
+const brunoAceSc = Bruno_Ace_SC({
+  subsets: ["latin"],
+  weight: ["400"],
+});
 
 export const metadata: Metadata = {
   title: "Twitch Bot Dashboard",
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
-      <body className={orbitron.className}>
+      <body className={brunoAceSc.className}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

@@ -1,67 +1,72 @@
-import Database from "better-sqlite3";
+import Database, { Database as IDatabase } from "better-sqlite3";
 import path from "path";
-import { GAMBLING_START_POINTS } from "../../../bot/src/commands/points";
+import fs from "fs"; // Potrzebujemy modułu `fs`
 
-// Singleton, aby uniknąć wielokrotnego tworzenia instancji w jednym procesie
-let reputationDbInstance: Database.Database | null = null;
-let pointsDbInstance: Database.Database | null = null;
+/**
+ * Funkcja, która niezawodnie znajduje główny katalog monorepo,
+ * szukając pliku `pnpm-workspace.yaml`.
+ */
+const findMonorepoRoot = () => {
+  let currentDir = __dirname;
+  while (!fs.existsSync(path.join(currentDir, "pnpm-workspace.yaml"))) {
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      // Dotarliśmy do roota systemu plików
+      throw new Error(
+        "Nie udało się znaleźć głównego katalogu monorepo (brak pnpm-workspace.yaml)",
+      );
+    }
+    currentDir = parentDir;
+  }
+  return currentDir;
+};
 
-const createDbConnection = (dbName: string): Database.Database => {
-  // Ta ścieżka musi być absolutna i niezależna od tego, skąd jest uruchamiany skrypt.
-  // process.cwd() wskazuje na katalog, z którego uruchomiono komendę `pnpm`.
-  const monorepoRoot = path.resolve(__dirname, "../../../../../");
+const monorepoRoot = findMonorepoRoot();
+
+const createDbConnection = (dbName: string): IDatabase => {
+  // Budujemy ścieżkę od znalezionego roota
   const dbPath = path.join(monorepoRoot, "db", dbName);
 
   try {
-    const db = new Database(dbPath);
+    const db = new Database(dbPath, { fileMustExist: true });
     db.pragma("journal_mode = WAL");
     console.log(`[DB] Pomyślnie połączono z: ${dbPath}`);
     return db;
   } catch (error) {
-    console.error(`[DB] Błąd połączenia z bazą danych ${dbPath}:`, error);
-    // Zatrzymujemy aplikację, jeśli nie można połączyć się z bazą.
+    console.error(
+      `[DB] Błąd połączenia z bazą danych ${dbPath}. Upewnij się, że plik istnieje i został zainicjalizowany.`,
+    );
+    if (process.env.NODE_ENV === "development") {
+      console.error(
+        "Uruchom 'pnpm db:init', aby stworzyć i zainicjalizować bazę danych.",
+      );
+    }
     process.exit(1);
   }
 };
 
-// Funkcje do pobierania instancji (wzorzec singleton)
-export const getReputationDbNew = (): Database.Database => {
-  if (!reputationDbInstance) {
-    reputationDbInstance = createDbConnection("reputation.db");
-    // Tutaj możesz dodać inicjalizację schematu
-    const createTable = `
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            reputation INTEGER DEFAULT 0
-        );
-    `;
-    reputationDbInstance.exec(createTable);
-  }
-  return reputationDbInstance;
+// Singleton pattern
+const globalForDb = globalThis as unknown as {
+  reputationDb: IDatabase | undefined;
+  pointsDb: IDatabase | undefined;
 };
 
-export const getPointsDbNew = (): Database.Database => {
-  if (!pointsDbInstance) {
-    pointsDbInstance = createDbConnection("points.db");
-    // Tutaj możesz dodać inicjalizację schematu
-    const createTable = `
-      CREATE TABLE IF NOT EXISTS users (
-        username TEXT PRIMARY KEY,
-        displayName TEXT DEFAULT null,
-        points INTEGER DEFAULT ${GAMBLING_START_POINTS},
-        debt INTEGER DEFAULT 0,
-        lastBet INTEGER DEFAULT 0,
-        lastLoan INTEGER DEFAULT 0,
-        lastDuel INTEGER DEFAULT 0,
-        wins INTEGER DEFAULT 0,
-        losses INTEGER DEFAULT 0,
-        lastRobbery INTEGER DEFAULT 0,
-        robberies INTEGER DEFAULT 0,
-        betsCount INTEGER DEFAULT 0,
-        successfulRobberies INTEGER DEFAULT 0
-      );
-     `;
-    pointsDbInstance.exec(createTable);
-  }
-  return pointsDbInstance;
+export const reputationDb: IDatabase =
+  globalForDb.reputationDb ?? createDbConnection("reputation.db");
+export const pointsDb: IDatabase =
+  globalForDb.pointsDb ?? createDbConnection("points.db");
+
+if (process.env.NODE_ENV !== "production") {
+  globalForDb.reputationDb = reputationDb;
+  globalForDb.pointsDb = pointsDb;
+}
+
+// ... reszta kodu (init...Schema) ...
+// Pamiętaj, aby te funkcje również używały `reputationDb` i `pointsDb`
+export const initReputationSchema = () => {
+  reputationDb.exec(`CREATE TABLE IF NOT EXISTS ...`);
+};
+
+export const initPointsSchema = () => {
+  pointsDb.exec(`CREATE TABLE IF NOT EXISTS ...`);
 };

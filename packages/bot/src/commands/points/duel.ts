@@ -1,8 +1,8 @@
 import tmi from "tmi.js";
 import {
   changePoints,
-  getPointsDb,
   getPointsUser,
+  pointsDb,
   updateDuelStats,
 } from "@twitch-bot-ts/shared";
 import { getDisplayName } from "../../services/displayName.service";
@@ -119,7 +119,7 @@ export const handleDuelAcceptance = (
   updateDuelStats(winner.username, true);
   updateDuelStats(loser.username, false);
 
-  const db = getPointsDb();
+  const db = pointsDb;
   db.prepare(`UPDATE users SET lastDuel = ? WHERE username = ?`).run(
     now,
     challenger.username,

@@ -1,14 +1,14 @@
-import {getPointsDb} from "./connection";
-import {PointsUser} from "./types";
+import { PointsUser } from "./types";
+import { pointsDb } from "./db";
 
 export const getPointsUser = (username: string): PointsUser => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
   return stmt.get(username.toLowerCase()) as PointsUser;
 };
 
 export const changePoints = (username: string, amount: number): number => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const normalizedUser = username.toLowerCase();
 
   const user = getPointsUser(normalizedUser);
@@ -28,7 +28,7 @@ export const changeActivityPoints = (
   displayName: string,
   amount: number,
 ): void => {
-  const db = getPointsDb();
+  const db = pointsDb;
 
   // Dodaj usera jeśli nie istnieje
   db.prepare(
@@ -48,7 +48,7 @@ export const changeActivityPoints = (
 };
 
 export const changeDebt = (username: string, amount: number): number => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const normalizedUser = username.toLowerCase();
 
   const user = getPointsUser(normalizedUser);
@@ -64,7 +64,7 @@ export const changeDebt = (username: string, amount: number): number => {
 };
 
 export const updateDuelStats = (username: string, didWin: boolean): void => {
-  const db = getPointsDb();
+  const db = pointsDb;
   if (didWin) {
     db.prepare("UPDATE users SET wins = wins + 1 WHERE username = ?").run(
       username,
@@ -80,7 +80,7 @@ export const updateRobberyStats = (
   username: string,
   success: boolean,
 ): void => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const user = db
     .prepare(
       `SELECT robberies, successfulRobberies FROM users WHERE username = ?`,
@@ -99,7 +99,7 @@ export const updateRobberyStats = (
 };
 
 export const repayLoan = (username: string, amount: number): number => {
-  const db = getPointsDb();
+  const db = pointsDb;
   const user = getPointsUser(username);
   if (!user) return 0;
 
@@ -118,7 +118,7 @@ export const repayLoan = (username: string, amount: number): number => {
 };
 
 export const incrementBetsCount = (username: string): void => {
-  const db = getPointsDb();
+  const db = pointsDb;
   db.prepare(
     `UPDATE users SET betsCount = COALESCE(betsCount, 0) + 1 WHERE username = ?`,
   ).run(username.toLowerCase());
