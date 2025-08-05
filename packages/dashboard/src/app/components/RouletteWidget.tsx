@@ -2,15 +2,15 @@
 
 import { Box, Paper, Stack, Typography } from "@mui/material";
 
-function RouletteWheel() {
+export function RouletteWheel({ size = 80 }: { size?: number }) {
   const precision = 5; // 5 miejsc po przecinku to więcej niż wystarczająco dla SVG
 
   return (
     <Box
       className="roulette-spinner"
       sx={{
-        width: 60,
-        height: 60,
+        width: size,
+        height: size,
       }}
     >
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -87,10 +87,15 @@ export default function RouletteWidget() {
         >
           Podziemny Krąg
         </Typography>
-        <Typography variant="h6" sx={{ fontWeight: "bold", lineHeight: 1.2 }}>
+        <Typography
+          align="center"
+          variant="h6"
+          sx={{ fontWeight: "bold", lineHeight: 1.2 }}
+        >
           W Grze
         </Typography>
       </Stack>
+      <RouletteWheel />
     </Paper>
   );
 }

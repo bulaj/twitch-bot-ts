@@ -23,9 +23,9 @@ import SportsKabaddiIcon from "@mui/icons-material/SportsKabaddi";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import Link from "next/link";
-import RouletteWidget from "./components/RouletteWidget";
+import RouletteWidget, { RouletteWheel } from "./components/RouletteWidget";
+import React from "react";
 
-// Definicje animacji (pozostają bez zmian)
 const textGlow = {
   "0%, 100%": {
     textShadow:
@@ -46,19 +46,19 @@ const ALLOWED_ORDER_BY_COLUMNS = [
   "successfulRobberies",
   "debt",
 ];
-
+const podiumStyles = [
+  {
+    order: { xs: 1, md: 2 },
+    mt: { xs: 0, md: -4 },
+    transform: "scale(1.15)",
+    glowColor: "rgba(255, 215, 0, 1)",
+  },
+  { order: { xs: 2, md: 1 }, mt: 0, glowColor: "rgba(192, 192, 192, 0.7)" },
+  { order: { xs: 3, md: 3 }, mt: 0, glowColor: "rgba(205, 127, 50, 0.7)" },
+];
 function Podium({ topThree }: { topThree: PointsUser[] }) {
   if (topThree.length === 0) return null;
-  const podiumStyles = [
-    {
-      order: { xs: 1, md: 2 },
-      mt: { xs: 0, md: -4 },
-      transform: "scale(1.15)",
-      glowColor: "rgba(255, 215, 0, 0.7)",
-    },
-    { order: { xs: 2, md: 1 }, mt: 0, glowColor: "rgba(192, 192, 192, 0.7)" },
-    { order: { xs: 3, md: 3 }, mt: 0, glowColor: "rgba(205, 127, 50, 0.7)" },
-  ];
+
   return (
     <Grid
       container
@@ -68,7 +68,11 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
       sx={{ mb: 6 }}
     >
       {topThree.map((user, index) => (
-        <Grid key={user.username} sx={{ order: podiumStyles[index].order }}>
+        <Grid
+          key={user.username}
+          sx={{ order: podiumStyles[index].order }}
+          minWidth={200}
+        >
           <Box
             sx={{
               position: "relative",
@@ -143,6 +147,13 @@ function Podium({ topThree }: { topThree: PointsUser[] }) {
   );
 }
 
+const getTrophyStyle = (index: number) => {
+  if (index === 0) return { color: "#ffd700", textShadow: "0 0 10px #ffd700" };
+  if (index === 1) return { color: "#c0c0c0", textShadow: "0 0 10px #c0c0c0" };
+  if (index === 2) return { color: "#cd7f32", textShadow: "0 0 10px #cd7f32" };
+  return { color: "#a9a9d2" };
+};
+
 export default async function HomePage({
   searchParams,
 }: {
@@ -168,16 +179,6 @@ export default async function HomePage({
 
   const topThreeForPodium = users.slice(0, 3);
 
-  const getTrophyStyle = (index: number) => {
-    if (index === 0)
-      return { color: "#ffd700", textShadow: "0 0 10px #ffd700" };
-    if (index === 1)
-      return { color: "#c0c0c0", textShadow: "0 0 10px #c0c0c0" };
-    if (index === 2)
-      return { color: "#cd7f32", textShadow: "0 0 10px #cd7f32" };
-    return { color: "#a9a9d2" };
-  };
-
   return (
     <Box
       sx={{
@@ -191,10 +192,11 @@ export default async function HomePage({
         <Stack
           direction="row"
           spacing={2}
+          mb={6}
           justifyContent="center"
           alignItems="center"
         >
-          <WhatshotIcon sx={{ fontSize: "3rem", color: "#ff7961" }} />
+          <RouletteWheel />
           <Typography
             variant="h2"
             component="h1"
@@ -202,12 +204,15 @@ export default async function HomePage({
             sx={{
               "@keyframes textGlow": textGlow,
               fontWeight: "bold",
-              mb: 4,
+              mb: 6,
               animation: "textGlow 0.1s ease-in-out infinite alternate",
             }}
           >
+            <WhatshotIcon sx={{ fontSize: "3rem", color: "#ff7961" }} />
             PODZIEMNY KRĄG HAZARDU
+            <WhatshotIcon sx={{ fontSize: "3rem", color: "#ff7961" }} />
           </Typography>
+          <RouletteWheel />
         </Stack>
 
         <Podium topThree={topThreeForPodium} />
@@ -234,7 +239,6 @@ export default async function HomePage({
                   <TableCell sx={{ border: "none", color: "#a9a9d2" }}>
                     Gracz
                   </TableCell>
-                  {/* --- KROK 3: Logika linków jest teraz wewnątrz JSX --- */}
                   <TableCell sx={{ border: "none" }}>
                     <Link
                       href={`/?orderBy=points&order=${orderBy === "points" && order === "desc" ? "asc" : "desc"}`}
