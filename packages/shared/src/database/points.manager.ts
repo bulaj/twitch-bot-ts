@@ -1,15 +1,19 @@
 import { PointsUser } from "./types";
 import { pointsDb } from "./db";
 
-export const getPointsUser = (username: string): PointsUser => {
+export type LowercaseString = Lowercase<string>;
+export const getPointsUser = (username: LowercaseString): PointsUser => {
   const db = pointsDb;
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
   return stmt.get(username.toLowerCase()) as PointsUser;
 };
 
-export const changePoints = (username: string, amount: number): number => {
+export const changePoints = (
+  username: LowercaseString,
+  amount: number,
+): number => {
   const db = pointsDb;
-  const normalizedUser = username.toLowerCase();
+  const normalizedUser = username.toLowerCase() as LowercaseString;
 
   const user = getPointsUser(normalizedUser);
   if (!user) {
@@ -49,7 +53,7 @@ export const changeActivityPoints = (
 
 export const changeDebt = (username: string, amount: number): number => {
   const db = pointsDb;
-  const normalizedUser = username.toLowerCase();
+  const normalizedUser = username.toLowerCase() as LowercaseString;
 
   const user = getPointsUser(normalizedUser);
   if (!user) {
@@ -98,7 +102,10 @@ export const updateRobberyStats = (
   ).run(newRobberies, newSuccesses, username);
 };
 
-export const repayLoan = (username: string, amount: number): number => {
+export const repayLoan = (
+  username: LowercaseString,
+  amount: number,
+): number => {
   const db = pointsDb;
   const user = getPointsUser(username);
   if (!user) return 0;

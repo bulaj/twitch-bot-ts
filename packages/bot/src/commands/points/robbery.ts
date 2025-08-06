@@ -79,9 +79,10 @@ export const handleRobbery = (
   }
 
   const success = Math.random() < ROBBERY_CHANCE;
+  updateRobberyStats(user.username, success);
 
   if (success) {
-    changePoints(getDisplayName(user), amount);
+    changePoints(user.username, amount);
     changePoints(victim.username, -amount);
 
     client.say(
@@ -89,15 +90,13 @@ export const handleRobbery = (
       `💥 @${getDisplayName(user)} udany napad na @${getDisplayName(victim)}, zdobycz: ${amount} punktów!`,
     );
   } else {
-    changePoints(getDisplayName(user), -amount);
+    changePoints(user.username, -amount);
 
     client.say(
       channel,
       `❌ @${getDisplayName(user)} nie udał się napad na @${getDisplayName(victim)}, strata: ${amount} punktów!`,
     );
   }
-
-  updateRobberyStats(getDisplayName(user), success);
 
   db.prepare(`UPDATE users SET lastRobbery = ? WHERE username = ?`).run(
     now,

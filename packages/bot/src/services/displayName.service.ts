@@ -1,6 +1,6 @@
 import tmi from "tmi.js";
-
-export const getDisplayName = (user: tmi.ChatUserstate) => {
+export type DisplayName = string;
+export const getDisplayName = (user: tmi.ChatUserstate): DisplayName => {
   if (user.username) {
     return user["display-name"] || user.displayName || user.username;
   }

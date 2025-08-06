@@ -5,16 +5,13 @@ import {
   changePoints,
   getPointsUser,
   incrementBetsCount,
+  LowercaseString,
   pointsDb,
   PointsUser,
-  repayLoan,
+  repayLoan
 } from "@twitch-bot-ts/shared";
 import { handleRobbery } from "./robbery";
-import {
-  cleanupExpiredDuels,
-  handleDuelAcceptance,
-  handleDuelChallenge,
-} from "./duel";
+import { cleanupExpiredDuels, handleDuelAcceptance, handleDuelChallenge } from "./duel";
 import { getDisplayName } from "../../services/displayName.service";
 import {
   AKCEPTUJ,
@@ -29,7 +26,7 @@ import {
   TOPBOGACZE,
   TOPDLUZNICY,
   TOPROBBERS,
-  TOPWOJOWNICY,
+  TOPWOJOWNICY
 } from "./constants";
 
 const COOLDOWN = 60 * 1000;
@@ -72,7 +69,7 @@ export const handlePointsCommands = (
   if (!pointsCommands.some((cmd) => message.startsWith(cmd))) return;
 
   const db = pointsDb;
-  const username = userstate.username.toLowerCase();
+  const username = userstate.username.toLowerCase() as LowercaseString;
   const displayName = getDisplayName(userstate);
   const now = Date.now();
 
