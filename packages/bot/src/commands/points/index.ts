@@ -8,10 +8,14 @@ import {
   LowercaseString,
   pointsDb,
   PointsUser,
-  repayLoan
+  repayLoan,
 } from "@twitch-bot-ts/shared";
 import { handleRobbery } from "./robbery";
-import { cleanupExpiredDuels, handleDuelAcceptance, handleDuelChallenge } from "./duel";
+import {
+  cleanupExpiredDuels,
+  handleDuelAcceptance,
+  handleDuelChallenge,
+} from "./duel";
 import { getDisplayName } from "../../services/displayName.service";
 import {
   AKCEPTUJ,
@@ -26,7 +30,7 @@ import {
   TOPBOGACZE,
   TOPDLUZNICY,
   TOPROBBERS,
-  TOPWOJOWNICY
+  TOPWOJOWNICY,
 } from "./constants";
 
 const COOLDOWN = 60 * 1000;

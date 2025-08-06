@@ -1,6 +1,7 @@
 import {
   changePoints,
   getPointsUser,
+  LowercaseString,
   pointsDb,
   PointsUser,
   updateRobberyStats,
@@ -41,7 +42,7 @@ export const handleRobbery = (
   }
 
   const db = pointsDb;
-  const victim = getPointsUser(target.toLowerCase());
+  const victim = getPointsUser(target.toLowerCase() as LowercaseString);
 
   if (!victim) {
     client.say(

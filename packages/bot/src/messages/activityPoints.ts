@@ -1,4 +1,4 @@
-import { changeActivityPoints, getPointsUser } from "@twitch-bot-ts/shared";
+import { changeActivityPoints, getPointsUser, LowercaseString } from "@twitch-bot-ts/shared";
 import { logger } from "../services/logger.service";
 import tmi from "tmi.js";
 
@@ -27,7 +27,7 @@ export const handleActivityPoints = (
 ) => {
   if (!userstate.username) return;
 
-  const username = userstate.username.toLowerCase();
+  const username = userstate.username.toLowerCase() as LowercaseString;
   const displayName = userstate["display-name"] || username;
   const now = Date.now();
   const lastUsed = lastActivity.get(username);

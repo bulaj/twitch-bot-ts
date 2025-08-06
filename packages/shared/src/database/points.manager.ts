@@ -28,7 +28,7 @@ export const changePoints = (
 };
 
 export const changeActivityPoints = (
-  username: string,
+  username: LowercaseString,
   displayName: string,
   amount: number,
 ): void => {
@@ -51,7 +51,10 @@ export const changeActivityPoints = (
   ).run(amount, username.toLowerCase());
 };
 
-export const changeDebt = (username: string, amount: number): number => {
+export const changeDebt = (
+  username: LowercaseString,
+  amount: number,
+): number => {
   const db = pointsDb;
   const normalizedUser = username.toLowerCase() as LowercaseString;
 
@@ -67,7 +70,10 @@ export const changeDebt = (username: string, amount: number): number => {
   return result.debt;
 };
 
-export const updateDuelStats = (username: string, didWin: boolean): void => {
+export const updateDuelStats = (
+  username: LowercaseString,
+  didWin: boolean,
+): void => {
   const db = pointsDb;
   if (didWin) {
     db.prepare("UPDATE users SET wins = wins + 1 WHERE username = ?").run(
@@ -81,7 +87,7 @@ export const updateDuelStats = (username: string, didWin: boolean): void => {
 };
 
 export const updateRobberyStats = (
-  username: string,
+  username: LowercaseString,
   success: boolean,
 ): void => {
   const db = pointsDb;
@@ -124,7 +130,7 @@ export const repayLoan = (
   return repayAmount;
 };
 
-export const incrementBetsCount = (username: string): void => {
+export const incrementBetsCount = (username: LowercaseString): void => {
   const db = pointsDb;
   db.prepare(
     `UPDATE users SET betsCount = COALESCE(betsCount, 0) + 1 WHERE username = ?`,

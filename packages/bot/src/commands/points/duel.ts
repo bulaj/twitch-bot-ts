@@ -2,6 +2,7 @@ import tmi from "tmi.js";
 import {
   changePoints,
   getPointsUser,
+  LowercaseString,
   pointsDb,
   updateDuelStats,
 } from "@twitch-bot-ts/shared";
@@ -12,8 +13,8 @@ export const DUEL_EXPIRATION = 3 * 60 * 1000;
 const DUEL_CHANCE = 0.666;
 
 const pendingDuels: {
-  [targetUsername: string]: {
-    challenger: string;
+  [targetUsername: LowercaseString]: {
+    challenger: LowercaseString;
     amount: number;
     timestamp: number;
   };
@@ -22,7 +23,7 @@ const pendingDuels: {
 export const handleDuelChallenge = (
   client: tmi.Client,
   channel: string,
-  username: string,
+  username: LowercaseString,
   displayName: string,
   target: string,
   amount: number,
@@ -34,7 +35,7 @@ export const handleDuelChallenge = (
   }
 
   const challenger = getPointsUser(username);
-  const opponent = getPointsUser(target.toLowerCase());
+  const opponent = getPointsUser(target.toLowerCase() as LowercaseString);
 
   if (!opponent) {
     client.say(
@@ -63,7 +64,7 @@ export const handleDuelChallenge = (
     return;
   }
 
-  pendingDuels[target.toLowerCase()] = {
+  pendingDuels[target.toLowerCase() as LowercaseString] = {
     challenger: username,
     amount,
     timestamp: now,
@@ -78,7 +79,7 @@ export const handleDuelChallenge = (
 export const handleDuelAcceptance = (
   client: tmi.Client,
   channel: string,
-  username: string,
+  username: LowercaseString,
   displayName: string,
   now: number,
 ) => {
@@ -138,7 +139,7 @@ export const cleanupExpiredDuels = () => {
   const now = Date.now();
   for (const [target, data] of Object.entries(pendingDuels)) {
     if (now - data.timestamp > DUEL_EXPIRATION) {
-      delete pendingDuels[target];
+      delete pendingDuels[target as LowercaseString];
     }
   }
 };
